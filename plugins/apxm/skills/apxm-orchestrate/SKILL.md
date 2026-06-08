@@ -77,13 +77,7 @@ Wake the caller/planner only on `orchestrator_wake` or terminal workflow events.
 dekk apxm execute <workflow.air>
 ```
 
-8. If native orchestration is not advertised, create a compact APXM request under `.apxm/requests/` and hand it to the compile/execute path. The request should contain only objective, constraints, desired artifacts, worker requirements, budget, and verification requirements. Do not pass PlanGraph JSON directly to `dekk apxm validate`; current APXM validation expects canonical `.air`.
-
-If a native orchestration command is present in `dekk apxm --help`, it may replace the request handoff:
-
-```bash
-dekk apxm orchestrate --task "<brief objective>" --policy <policy.json>
-```
+8. If neither `dekk apxm goal` nor `apxm_orchestrate_start` is available, stop with `setup_required` and the missing control surface. For reusable work that already has an explicit workflow artifact, use the compile/execute path on canonical `.air` or checked-in `.apxmw`. Do not pass PlanGraph JSON directly to `dekk apxm validate`; current APXM validation expects canonical `.air`.
 
 ## Delegation Rules
 

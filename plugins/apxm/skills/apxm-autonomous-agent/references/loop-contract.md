@@ -36,7 +36,7 @@ The plugin only teaches agents how to request this. APXM server, APXM OS, Dekk, 
 |---|---|---|---|
 | APXM OS provider connector | `POST /v1/skills/{id}/execute` | Event-triggered loop from Discord, GitHub, cron, files, queues, or webhooks | `/v1/runs/{execution_id}/events`, checkpoint resume, run cancel |
 | Agent host through MCP | Existing APXM MCP tools such as `apxm_orchestrate_start`, `apxm_skill_call`, `apxm_run`, `apxm_trace_fetch` | Agent-initiated bounded orchestration, compile/run/follow when a human or parent agent asks | MCP result plus server run events when available |
-| Dekk/APXM CLI | `dekk apxm workflow ...`, `dekk apxm session ...`, `dekk apxm rollout ...` | Local fallback, developer testing, detached workflow follow handles | session directory, process list, rollout/session inspect |
+| Dekk/APXM CLI | `dekk apxm workflow ...`, `dekk apxm session ...`, `dekk apxm rollout ...` | Local developer testing and detached workflow follow handles | session directory, process list, rollout/session inspect |
 | Frontend | REST/SSE or generated workflow/trigger artifacts | Author specs and observe runs | server events, checkpoints, cancellation |
 | Worker agent | APXM worker prompt/spawn route selected by policy | Execute one assigned role, propose a graph, review, or verify | APXM runtime/process-table events, worker artifact |
 

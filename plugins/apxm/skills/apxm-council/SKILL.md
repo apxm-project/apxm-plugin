@@ -19,19 +19,19 @@ python3 "$PLUGIN_ROOT/scripts/apxm_doctor.py"
 If `apxm` is not installed globally and Dekk needs the APXM worktree, set `APXM_WORKTREE=/path/to/apxm` or pass `--apxm-cwd /path/to/apxm`.
 
 3. If no APXM route is ready, return `setup_required` with the doctor warnings.
-4. Create a compact council request in `.apxm/requests/` and hand it to `apxm-compile-and-execute`.
-
-If a native council command is present in `dekk apxm --help`, it may replace the request handoff:
+4. For direct execution, use `dekk apxm goal` with council roles so APXM owns the bounded worker pass:
 
 ```bash
-dekk apxm council --task "<decision or question>" --policy <policy.json>
+dekk apxm goal "<decision or question>" \
+  --context "council: independent positions, dissent, evidence, recommendation" \
+  --worker position_a:"Independent first-pass position" \
+  --worker position_b:"Independent first-pass position" \
+  --worker critic:"Critique assumptions and preserve dissent" \
+  --worker synthesize:"Synthesize recommendation with evidence" \
+  --depends synthesize=position_a,position_b,critic
 ```
 
-5. If a native orchestration command is present, a council can also route through it:
-
-```bash
-dekk apxm orchestrate --workflow council --task "<decision or question>" --policy <policy.json>
-```
+5. For reusable council artifacts, use a checked-in `.apxmw` or canonical `.air`, then hand it to `apxm-compile-and-execute`.
 
 ## Council Rules
 

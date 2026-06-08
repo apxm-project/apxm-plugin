@@ -19,7 +19,7 @@ This repository is a Codex marketplace root. The installable plugin lives at
 - `apxm-verify-workflow`: verify traces, artifacts, and declared evidence.
 - `apxm-follow-workflow`: launch/follow background workflows, watch live runs, and replay/archive APXM rollouts.
 - `apxm-headless-hosts`: debug ACP/headless host profiles.
-- `apxm-mcp`: prefer APXM server/MCP for controllable sessions, with Dekk as fallback.
+- `apxm-mcp`: prefer APXM server/MCP for controllable sessions, with Dekk for local developer execution.
 
 ## Boundary
 

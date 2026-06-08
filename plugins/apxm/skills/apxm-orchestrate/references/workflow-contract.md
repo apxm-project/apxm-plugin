@@ -16,7 +16,7 @@ APXM owns execution. Skills only prepare intent, call APXM/Dekk, and report trac
     +--> [setup_required] --> [return missing APXM/runtime/worker gap]
     |
     v
-[Create compact request, resolved worker DAG, or use existing canonical graph]
+[Create resolved worker DAG or use existing canonical graph]
     |
     v
 [Choose execution surface]
@@ -124,32 +124,26 @@ Stop only through:
 apxm_workflow_cancel({ "execution_id": "..." })
 ```
 
-## Minimal Request Envelope
+## Compact Worker Brief
 
-Use this shape when no native `dekk apxm orchestrate` surface is available yet:
+Use this shape inside worker prompts, policies, or workflow specs. It is not a
+separate execution API; native bounded execution goes through `dekk apxm goal`
+or `apxm_orchestrate_start`.
 
 ```json
 {
-  "kind": "apxm.orchestrate.request",
   "objective": "Brief user-facing objective.",
   "context": ["Only the relevant file paths, docs, or constraints."],
-  "desired_artifacts": ["patch", "report", "trace"],
-  "worker_requirements": {
-    "min_routes": 1,
-    "capabilities": ["read", "execute", "graph_author"]
-  },
-  "policy": {
-    "budget_usd": 2.0,
-    "max_parallelism": 4,
-    "write_mode": "review_then_apply",
-    "verification": ["tests", "schema", "artifact_check"]
-  }
+  "expected_artifacts": ["patch", "report", "trace"],
+  "verification": ["tests", "schema", "artifact_check"],
+  "budget": { "usd": 2.0, "max_parallelism": 4 },
+  "stop_conditions": ["policy rejection", "budget exhausted", "verification failed"]
 }
 ```
 
 `goal` is the human-facing word. Do not send a `goal` field to
 `apxm_orchestrate_start`; map human intent to `task` for the native MCP tool or
-to `objective` for this compact fallback envelope.
+to `objective` only inside local specs and worker briefs.
 
 ## Admission Rules
 

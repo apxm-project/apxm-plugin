@@ -28,7 +28,7 @@ This plugin is the distribution layer for APXM orchestration skills. It teaches 
                     [Bind preferred workers if policy allows]
                                |
                                v
-                    [Create compact task request]
+                    [Create bounded worker DAG]
                                |
                                v
                     [APXM validates policy]
@@ -61,7 +61,7 @@ This plugin is the distribution layer for APXM orchestration skills. It teaches 
 
 - Provide concise skills that route work to APXM.
 - Discover readiness through `scripts/apxm_doctor.py`.
-- Encourage compact request envelopes instead of giant prompts.
+- Encourage compact worker briefs and workflow specs instead of giant prompts.
 - Keep councils, workers, compile/execute, verification, and MCP boundaries explicit.
 - Distribute the workflow as a Codex plugin marketplace repo while keeping APXM worker routing agent-agnostic.
 
@@ -106,7 +106,7 @@ This plugin is the distribution layer for APXM orchestration skills. It teaches 
       [Follow via events, rollout, or session files]
 ```
 
-The preferred agent path is MCP over APXM server because the server can own many concurrent sessions with stable IDs, retained events, cancellation, rollout records, and server-controlled session roots. Dekk and the direct CLI remain important local fallbacks and developer tools, especially for detached `.apxmw` background runs.
+The preferred agent path is MCP over APXM server because the server can own many concurrent sessions with stable IDs, retained events, cancellation, rollout records, and server-controlled session roots. Dekk and the direct CLI remain local developer surfaces, especially for explicit detached `.apxmw` workflow runs that return APXM follow handles.
 
 ## Worker Model
 
@@ -197,7 +197,7 @@ Use these words consistently:
 
 - `goal`: human-facing intent, as in `dekk apxm goal "..."`.
 - `task`: the concrete string passed to `apxm_orchestrate_start`.
-- `objective`: the fallback compact request-envelope field.
+- `objective`: a local artifact/spec field; do not send it to native MCP tools.
 - `planner/orchestrator`: a role that proposes or supervises a bounded pass.
 - `apxm_orchestrate_start`: the server-owned execution primitive for one explicit bounded worker DAG.
 
@@ -308,7 +308,7 @@ The original skill stays as the trigger layer. APXM becomes the graph execution 
  [record result + memory]       [loop or re-arm]        [checkpoint/cancel]
 ```
 
-For provider-triggered loops, keep the outer event loop in APXM OS: provider listener, trigger sidecar, dedupe, policy, and event-to-skill dispatch. APXM server remains the execution and observation gateway with `execution_id`, retained events, cancellation, policy, worker admission, and server-controlled session roots when those surfaces are available. MCP should remain the thin agent-facing surface, while REST/SSE remains the frontend and watcher surface. Dekk/APXM CLI remains the fallback for local background `.apxmw` jobs.
+For provider-triggered loops, keep the outer event loop in APXM OS: provider listener, trigger sidecar, dedupe, policy, and event-to-skill dispatch. APXM server remains the execution and observation gateway with `execution_id`, retained events, cancellation, policy, worker admission, and server-controlled session roots when those surfaces are available. MCP should remain the thin agent-facing surface, while REST/SSE remains the frontend and watcher surface. Dekk/APXM CLI remains the local path for explicit background `.apxmw` jobs.
 
 See `docs/APXM-AUTONOMOUS-LOOP.md` and the `apxm-autonomous-agent` skill for the loop contract.
 
@@ -341,7 +341,7 @@ confirm with `apxm_workflow_status`. Server/MCP workflow mode should use native
 `apxm_workflow_start/status/events/cancel` when the target server lists those
 MCP tools, returning `execution_id`, `session_id`, and `session_dir` so APXM can
 control many concurrent sessions through run events and cancellation. Background
-workflow mode uses `dekk apxm workflow execute <workflow.apxmw> --background
+local CLI workflow mode uses `dekk apxm workflow execute <workflow.apxmw> --background
 --session-root <dir> --json` and follows `pid`, `session_dir`, `log_file`,
 `background.json`, and workflow-root `trace.ndjson`. Live follow mode uses
 `dekk apxm watch <thread_id>`. Offline follow mode uses `dekk apxm rollout

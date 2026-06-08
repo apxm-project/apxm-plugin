@@ -44,7 +44,11 @@ class ReadinessClassificationTests(unittest.TestCase):
     def test_candidate_executables_do_not_promote_to_tier_two(self) -> None:
         candidate = {"worker_id": "planner-a", "executable_present": True, "verified": False}
         self.assertFalse(candidate["verified"])
-        self.assertEqual(self.classify(True), ("degraded", 1))
+        verified = [worker for worker in [candidate] if worker.get("verified")]
+        self.assertEqual(
+            self.doctor.classify_readiness(has_apxm=True, verified_workers=verified),
+            ("degraded", 1),
+        )
 
     def test_one_verified_worker_is_tier_two(self) -> None:
         self.assertEqual(self.classify(True, {"worker_id": "worker-a"}), ("ready", 2))

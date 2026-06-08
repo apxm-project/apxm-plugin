@@ -37,7 +37,6 @@ def read(path: pathlib.Path) -> str:
 class AutonomousContractTests(unittest.TestCase):
     def test_plugin_metadata_frames_autonomous_as_specs_not_runtime_claim(self) -> None:
         manifest = json.loads(read(PLUGIN_JSON))
-        self.assertEqual(manifest["version"], "0.1.12")
         text = " ".join(
             [
                 manifest["description"],
@@ -55,12 +54,19 @@ class AutonomousContractTests(unittest.TestCase):
             "apxm_orchestrate_start",
             "apxm_workflow_events",
             "apxm_workflow_status",
-            "apxm_plan_as_graph",
             "bounded worker DAG",
-            "Caller sleeps and pages events/status",
         ):
             self.assertIn(phrase, combined)
         self.assertIn("Do not add another hidden natural-language planner tool", combined)
+        self.assertNotIn("dekk apxm orchestrate", combined)
+        self.assertNotIn(".apxm/requests", combined)
+
+    def test_mcp_skill_lists_only_real_workflow_control_tools(self) -> None:
+        skill = read(MCP_SKILL)
+        self.assertIn("apxm_workflow_start", skill)
+        self.assertIn("dekk apxm agent list --json", skill)
+        self.assertNotIn("`apxm_workers`", skill)
+        self.assertNotIn("`apxm_doctor`", skill)
 
     def test_skill_uses_os_to_server_path_not_server_trigger_registry(self) -> None:
         skill = read(AUTO_SKILL)

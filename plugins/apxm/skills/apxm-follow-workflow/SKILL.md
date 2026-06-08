@@ -119,7 +119,7 @@ If Dekk does not expose `workflow`, call the APXM binary directly from the APXM 
 - Do not confuse workflow following with workflow execution. Watching/replay is observability.
 - Live `watch` requires `apxm-server` and a valid `thread_id`.
 - Server/MCP-started work should be controlled by server-owned IDs; do not invent shell process management around it.
-- Prefer native `apxm_workflow_start/status/events/cancel` when MCP inventory lists them; fall back to local background workflow handles only when the server control plane is unavailable.
+- Prefer native `apxm_workflow_start/status/events/cancel` when MCP inventory lists them; use local background workflow handles only when the server control plane is unavailable or the caller explicitly wants detached CLI execution.
 - `rollout replay` and `rollout archive` work offline from rollout storage.
 - `session inspect` works from execution session output even when no rollout was recorded.
 - Workflow-root sessions are the canonical offline follow handle for `.apxmw` runs; child step sessions provide graph-level detail.

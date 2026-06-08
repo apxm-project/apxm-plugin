@@ -97,6 +97,20 @@ dekk apxm process list --json
 
 Expected: loop design starts from APXM OS trigger sidecars, existing APXM server skill execution, verified workers, and concrete follow/stop handles. The plugin should report missing APXM OS trigger loading, missing skill execution, missing run observation, missing worker verification, or missing background workflow handles instead of claiming that the trigger was armed.
 
+Native goal CLI smoke:
+
+```bash
+dekk apxm goal "bounded orchestration smoke" --dry-run --json
+dekk apxm goal "bounded orchestration smoke" --no-follow --json
+dekk apxm goal --status <execution_id> --json
+dekk apxm goal --events <execution_id> --json
+dekk apxm goal --cancel <execution_id> --json
+```
+
+Expected: `goal` returns an `execution_id`, artifact paths, control handles,
+worker plan, and workflow/session handles. `--dry-run` must validate and
+materialize the bundle without starting workers.
+
 Native MCP orchestration smoke:
 
 ```text

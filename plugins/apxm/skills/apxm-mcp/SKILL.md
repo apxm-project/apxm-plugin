@@ -12,7 +12,7 @@ Use this skill for APXM MCP adapter work. The MCP layer is an interface, not the
 1. Prefer APXM server HTTP MCP (`POST /v1/mcp`) when available. Agents call MCP tools; APXM server owns `execution_id`, `session_id`, server-controlled session directories, event streams, run records, cancellation, policy, and worker admission.
 2. Use APXM server REST/SSE directly when building a frontend, Dekk wrapper, or watcher. REST/SSE is the UI/control surface; MCP is the agent-facing surface.
 3. Use `dekk apxm` CLI when no server is available or when launching the current local background `.apxmw` workflow mode.
-4. Use the direct APXM binary only as a developer fallback.
+4. Use the direct APXM binary only as a developer escape hatch.
 
 ## Rules
 
@@ -28,7 +28,6 @@ Use this skill for APXM MCP adapter work. The MCP layer is an interface, not the
 
 - `apxm_validate`, `apxm_compile`, `apxm_ops_list`: compile-only MCP tools.
 - `apxm_run`: compile and run canonical AIR through server admission.
-- `apxm_dispatch`: constrained fan-out spec lowered to AIR and executed by APXM.
 - `apxm_plan_as_graph`: natural-language task to validated plan graph, optionally executed.
 - `apxm_trace_fetch`, `apxm_capability_list`, `apxm_skills_list`, `apxm_skill_call`: trace, capability, and skill surfaces.
 - `apxm_workflow_start`, `apxm_workflow_status`, `apxm_workflow_events`, `apxm_workflow_cancel`: native workflow control when the APXM server advertises them.
@@ -67,9 +66,7 @@ inspect; the top-level MCP `session_dir` remains the server-owned run session.
 [workflow session dir + child step sessions]
 ```
 
-If the target server does not list `apxm_workflow_start`, use the compatibility path: wrap the `.apxmw` in a tiny AIR graph with one `WORKFLOW_SPAWN` node and call `apxm_run` with a server-safe `session_id`. Do not include `session_root` in the graph or MCP arguments.
-
-Use `dekk apxm workflow execute <workflow.apxmw> --background --session-root <dir> --json` only when a detached local CLI workflow is desired or the server control plane is unavailable.
+If the target server does not list `apxm_workflow_start`, report the missing native workflow control surface. Use `dekk apxm workflow execute <workflow.apxmw> --background --session-root <dir> --json` only when a detached local CLI workflow is desired or the server control plane is unavailable.
 
 ## Workflow Tool Surface
 
@@ -79,8 +76,11 @@ Only call these tools when the target APXM server or MCP capability inventory co
 - `apxm_workflow_status`: summary from run/session records.
 - `apxm_workflow_events`: retained events or follow cursor.
 - `apxm_workflow_cancel`: cancel by server-owned `execution_id`.
-- `apxm_workers`: verified worker roster and capabilities.
-- `apxm_doctor`: local readiness and route discovery.
+
+For readiness and worker roster checks, use local preflight
+`scripts/apxm_doctor.py` and APXM agent registry commands such as
+`dekk apxm agent list --json` until the target server advertises a native
+worker-roster MCP tool.
 
 External event intake, trigger sidecar loading, and provider listener lifecycle belong in APXM OS for the MVP. Do not create MCP trigger tools unless APXM core has a real server-side trigger registry.
 
