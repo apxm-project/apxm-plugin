@@ -10,6 +10,7 @@ This repository is a Codex marketplace root. The installable plugin lives at
 
 - `apxm-council`: run a traceable multi-perspective council.
 - `apxm-orchestrate`: route large tasks through APXM graph execution.
+- `apxm-autonomous-agent`: design event-triggered autonomous loops with APXM-owned runs, triggers, evals, feedback, and cancellation.
 - `apxm-workers`: select verified APXM workers and request worker-authored graphs.
 - `apxm-skill-to-workflow`: convert agent skills into APXM workflow packs.
 - `apxm-compile-and-execute`: validate, compile, run, and inspect APXM artifacts.
@@ -28,7 +29,7 @@ start from preflight, map workflow roles to capabilities, and select from
 verified APXM profiles. Codex-as-planner and Claude-as-executor is an example
 policy binding, not a requirement.
 
-See `docs/APXM-PLUGIN-FLOW.md` for the plain-text flowchart and boundary model.
+See `docs/APXM-PLUGIN-FLOW.md` for the plain-text plugin flowchart and boundary model. See `docs/APXM-AUTONOMOUS-LOOP.md` for the autonomous event loop architecture.
 
 ## Local Check
 

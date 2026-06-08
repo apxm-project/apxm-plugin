@@ -209,6 +209,53 @@ The same policy shape works with `gemini`, `cursor`, `qwen`, `opencode`, or a cu
 
 The original skill stays as the trigger layer. APXM becomes the graph execution layer.
 
+## Autonomous Agent Flow
+
+```text
+[External/Internal event]
+          |
+          v
+[APXM OS or server event intake]
+          |
+          v
+[Normalize + dedupe]
+          |
+          v
+[Trigger match]
+          |
+    +-----+-------------------+
+    |                         |
+    v                         v
+[record ignored]      [policy + budget gate]
+                              |
+                     +--------+--------+
+                     |                 |
+                     v                 v
+              [checkpoint]       [action dispatch]
+                                       |
+             +-------------------------+-------------------------+
+             |                         |                         |
+             v                         v                         v
+          [skill]                  [graph]              [workflow/task]
+             |                         |                         |
+             +-------------------------+-------------------------+
+                                       |
+                                       v
+                                     [eval]
+                                       |
+             +-------------------------+-------------------------+
+             |                         |                         |
+             v                         v                         v
+         [success]              [feedback event]          [blocked/unsafe]
+             |                         |                         |
+             v                         v                         v
+ [record result + memory]       [loop or re-arm]        [checkpoint/cancel]
+```
+
+APXM server is the preferred owner for autonomous loops because it can own `execution_id`, `session_id`, retained events, cancellation, policy, worker admission, and server-controlled session roots. APXM OS should own external provider listeners and trigger sidecars. MCP should remain the agent-facing control surface, while REST/SSE remains the frontend and watcher surface. Dekk/APXM CLI remains the fallback for local background `.apxmw` jobs.
+
+See `docs/APXM-AUTONOMOUS-LOOP.md` and the `apxm-autonomous-agent` skill for the loop contract.
+
 ## Follow Workflow Flow
 
 ```text

@@ -85,3 +85,14 @@ Expected: live follow mode uses `watch` against a running server and thread id. 
 For foreground `.apxmw` execution, the returned `session_dir` must itself contain `manifest.json`, `live.json`, `trace.ndjson`, `results.json`, and `metrics.json`; `dekk apxm session list --session-root <dir>` should list the workflow root, and `session inspect <workflow-session-dir> --json` should expose `results.step_results` with child step session paths.
 
 For background `.apxmw` execution, the returned JSON must include `pid`, `session_dir`, `log_file`, and `command`; the workflow-root session should immediately contain `manifest.json`, `live.json`, `trace.ndjson`, and `background.json`, then `results.json` and `metrics.json` after completion. `dekk apxm process list` should expose the job while it is running.
+
+## Autonomous Loops
+
+```bash
+python3 plugins/apxm/scripts/apxm_doctor.py --verify-workers all-candidates
+dekk apxm agent list --json
+dekk apxm agent templates --json
+dekk apxm process list --json
+```
+
+Expected: loop design starts from verified workers and APXM control surfaces, not from hard-coded provider names. If the current APXM build lacks native server trigger APIs, the plugin should produce a loop spec or workflow pack and report the trigger registry gap instead of claiming that the server armed the trigger. Background loop tests should expose either server-owned `execution_id`/`session_id` or APXM-launched workflow background handles, never a raw shell `&` process as the control plane.

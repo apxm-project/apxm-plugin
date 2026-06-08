@@ -60,6 +60,12 @@ Use `dekk apxm workflow execute <workflow.apxmw> --background --session-root <di
 - `apxm_workflow_status`: summary from run/session records.
 - `apxm_workflow_events`: retained events or follow cursor.
 - `apxm_workflow_cancel`: cancel by server-owned `execution_id`.
+- `apxm_event_emit`: normalize and submit an event to APXM server for trigger matching.
+- `apxm_trigger_register`: register or update a server-owned trigger/action/eval/feedback loop.
+- `apxm_trigger_list`: list enabled and disabled triggers with policy summary.
+- `apxm_agent_start`: start a server-owned background autonomous agent or loop.
+- `apxm_agent_status`: inspect background agent state by server-owned id.
+- `apxm_agent_stop`: stop a background agent through APXM cancellation.
 - `apxm_workers`: verified worker roster and capabilities.
 - `apxm_doctor`: local readiness and route discovery.
 

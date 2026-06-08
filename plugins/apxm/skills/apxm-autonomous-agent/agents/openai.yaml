@@ -1,0 +1,6 @@
+interface:
+  display_name: "APXM Autonomous Agent"
+  short_description: "Event-driven APXM loops"
+  default_prompt: "Use $apxm-autonomous-agent to design an event-triggered APXM loop."
+policy:
+  allow_implicit_invocation: true
