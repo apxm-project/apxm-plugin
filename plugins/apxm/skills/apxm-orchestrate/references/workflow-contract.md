@@ -87,6 +87,12 @@ event has `payload.kind` equal to `orchestrator_wake`, `execute_complete`,
 apxm_workflow_status({ "execution_id": "..." })
 ```
 
+For observability, also track `workflow_started`, `workflow_step_started`,
+`workflow_step_completed`, and `workflow_finished`. The workflow-root session is
+`workflow_started.payload.session_dir`; each completed step should expose its
+child `session_dir` for graph/artifact/workflow inspection. Use those session
+paths when handing off evidence or debugging a worker.
+
 Stop only through:
 
 ```json

@@ -48,6 +48,13 @@ workflow. Use the returned `execution_id` with `apxm_workflow_events`, advance
 `since` to `next_seq`, wake on `orchestrator_wake` or terminal events, and
 confirm completion with `apxm_workflow_status`.
 
+When following events, preserve the workflow/session handles:
+`workflow_started.payload.session_dir` is the workflow-root session,
+`workflow_step_started` announces the active step id, `workflow_step_completed`
+includes `status`, `duration_ms`, and the child `session_dir`, and
+`workflow_finished` gives the final workflow status. Use these before falling
+back to offline session inspection.
+
 6. For live REST/SSE workflow/run progress, use:
 
 ```bash

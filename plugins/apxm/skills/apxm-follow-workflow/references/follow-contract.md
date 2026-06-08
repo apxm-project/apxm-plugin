@@ -38,6 +38,10 @@ When native workflow MCP tools are available, start `.apxmw` work through `apxm_
 For orchestration runs, wake on `payload.kind = "orchestrator_wake"` or terminal
 `execute_complete`, `error`, or `turn_aborted` events. Treat `done: true` on an
 events page as "page exhausted", not "workflow done"; status is authoritative.
+Workflow observability is event-native: `workflow_started` carries the
+workflow-root `session_dir`, `workflow_step_started` carries the step id and
+index, `workflow_step_completed` carries step status, duration, and child
+`session_dir`, and `workflow_finished` carries the final workflow status.
 
 ## Live Watch
 

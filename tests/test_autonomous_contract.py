@@ -32,7 +32,7 @@ def read(path: pathlib.Path) -> str:
 class AutonomousContractTests(unittest.TestCase):
     def test_plugin_metadata_frames_autonomous_as_specs_not_runtime_claim(self) -> None:
         manifest = json.loads(read(PLUGIN_JSON))
-        self.assertEqual(manifest["version"], "0.1.10")
+        self.assertEqual(manifest["version"], "0.1.11")
         text = " ".join(
             [
                 manifest["description"],

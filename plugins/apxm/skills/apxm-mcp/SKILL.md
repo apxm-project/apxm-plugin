@@ -46,6 +46,11 @@ manually prompt workers after start.
 
 When the target server lists the native workflow tools, launch a `.apxmw` with `apxm_workflow_start`, then follow with `apxm_workflow_status` and `apxm_workflow_events`, and interrupt with `apxm_workflow_cancel`. Treat the returned `execution_id` as the live control handle and `session_dir` as the offline inspection handle.
 
+Event consumers should keep workflow/session state from `workflow_started`,
+`workflow_step_started`, `workflow_step_completed`, and `workflow_finished`.
+`workflow_step_completed.payload.session_dir` is the child step session to
+inspect; the top-level MCP `session_dir` remains the server-owned run session.
+
 ```text
 [Agent]
    |

@@ -258,6 +258,12 @@ should not manually prompt workers after start. Real ACP workers require explici
 `admit_capabilities: ["SPAWN_AGENT"]`; provider names are policy bindings, not
 requirements.
 
+While asleep, the orchestrator can reconstruct live progress from
+`workflow_started`, `workflow_step_started`, `workflow_step_completed`, and
+`workflow_finished`. Treat step completion `session_dir` values as worker
+evidence handles and wait for `orchestrator_wake` or terminal events before
+continuing the loop.
+
 ## Interruptions
 
 Interruptions are normal control-plane events, not exceptional prompt text.

@@ -43,6 +43,12 @@ workers, include `admit_capabilities: ["SPAWN_AGENT"]`. After start, do not
 manually prompt workers; APXM owns worker spawn, fan-in, gate/eval, feedback,
 events, and cancellation.
 
+Observe workflow lifecycle events in `apxm_workflow_events`: `workflow_started`,
+`workflow_step_started`, `workflow_step_completed`, and `workflow_finished`.
+Use `workflow_started.payload.session_dir` as the workflow-root session and each
+`workflow_step_completed.payload.session_dir` as the child step session handle.
+Wake the orchestrator only on `orchestrator_wake` or terminal workflow events.
+
 6. If an executable canonical APXM graph already exists, prefer:
 
 ```bash
