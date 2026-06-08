@@ -21,7 +21,7 @@ Use this skill as the direct APXM/Dekk execution path. It should be boring and t
 - Canonical `.air`: validate, analyze, then execute or compile.
 - PlanGraph JSON: treat as a proposal and lower/compile to canonical `.air` before APXM validate/analyze/execute.
 - Python frontend workflow: compile to APXM graph first.
-- `.apxmw`: use `dekk apxm workflow validate|analyze|run` when available.
+- `.apxmw`: use `dekk apxm workflow validate|analyze|execute` when available.
 - `.apxmobj`: run directly.
 
 ## Commands
@@ -39,6 +39,8 @@ dekk apxm workflow validate <workflow.apxmw>
 dekk apxm workflow analyze <workflow.apxmw>
 dekk apxm workflow execute <workflow.apxmw> --json
 ```
+
+When calling the APXM binary directly instead of Dekk, the workflow execution subcommand may be `apxm workflow run <workflow.apxmw> --json`.
 
 Store generated artifacts under `.apxm/` unless the user or repo has a clearer convention.
 

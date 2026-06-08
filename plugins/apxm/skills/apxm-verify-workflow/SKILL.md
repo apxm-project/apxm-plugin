@@ -16,7 +16,9 @@ Use this skill after APXM execution or when reviewing a workflow pack. Verificat
 python3 "$PLUGIN_ROOT/scripts/apxm_doctor.py"
 ```
 
-3. Prefer APXM verification surfaces when present:
+If `apxm` is not installed globally and Dekk needs the APXM worktree, set `APXM_WORKTREE=/path/to/apxm` or pass `--apxm-cwd /path/to/apxm`.
+
+3. Prefer APXM verification surfaces when present. Use the same APXM command route the doctor selected (`apxm` or `dekk apxm`):
 
 ```bash
 dekk apxm verify <trace-or-artifact>

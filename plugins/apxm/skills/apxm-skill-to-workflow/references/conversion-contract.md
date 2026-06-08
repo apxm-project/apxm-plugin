@@ -49,4 +49,4 @@ context_paths = "string[]"
 - Keep prompts brief and artifact-oriented.
 - Record anything that stayed manual in `unsupported_features`.
 - Use canonical `skill.air` for executable graph artifacts; keep PlanGraph JSON as proposal/interchange data until lowered.
-- Use `workflow.apxmw` for multi-step workflow files that need `apxm workflow validate|analyze|run`.
+- Use `workflow.apxmw` for multi-step workflow files that need Dekk `workflow validate|analyze|execute` or direct APXM `workflow validate|analyze|run`.

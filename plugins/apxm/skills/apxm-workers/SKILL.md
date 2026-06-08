@@ -16,14 +16,16 @@ Use this skill to reason about APXM workers from the APXM registry and preflight
 python3 "$PLUGIN_ROOT/scripts/apxm_doctor.py"
 ```
 
+If `apxm` is not installed globally and Dekk needs the APXM worktree, set `APXM_WORKTREE=/path/to/apxm` or pass `--apxm-cwd /path/to/apxm`.
+
 3. Treat the doctor snapshot as the source of truth for the current environment.
 4. Before execution, request explicit spawn verification for the intended workers:
 
 ```bash
-python3 "$PLUGIN_ROOT/scripts/apxm_doctor.py" --verify-workers codex,claude
+python3 "$PLUGIN_ROOT/scripts/apxm_doctor.py" --verify-workers <planner-profile>,<executor-profile>
 ```
 
-Use `--verify-workers all-candidates` only when the user accepts adapter startup/network cost.
+Use `--verify-workers all-candidates` for every APXM-listed profile whose executable is on `PATH`. Use `--verify-workers all-resolvable` only when the user accepts broad adapter startup/network cost across the whole APXM registry.
 
 5. If available, inspect APXM worker state:
 
@@ -37,9 +39,22 @@ dekk apxm agent templates --json
 - A present executable is a candidate, not a verified worker.
 - A verified worker must be spawnable, promptable, observable, and stoppable by APXM.
 - Prefer workers by capability and policy fit, not provider preference.
+- Treat Codex, Claude, Gemini, Cursor, Qwen, opencode, custom ACP profiles, and future headless routes as interchangeable candidates until APXM verification and policy select them.
 - Any verified worker may propose a `PlanGraph`, Python frontend workflow, or child workflow.
 - Worker-authored graphs are untrusted until APXM validates, compiles, and admits them.
 - When no verified execution route exists, return a setup plan instead of fabricating execution.
+
+## Role Routing
+
+Use roles to describe what the workflow needs, then bind workers late:
+
+- `planner`: read context and propose a graph or task split.
+- `executor`: run the admitted work under APXM policy.
+- `reviewer` or `critic`: inspect outputs and preserve dissent.
+- `verifier`: run checks and confirm artifacts.
+- `synthesizer`: merge evidence into the final result.
+
+Example only: a policy may prefer Codex for `planner` and Claude for `executor`, but the skill must accept any verified workers with the required capabilities.
 
 ## Worker Brief
 
@@ -60,4 +75,4 @@ Load `references/worker-contract.md` when building a worker roster, capability m
 
 ## Result Shape
 
-Return: `status`, `tier`, `selected_workers`, `capability_gaps`, `policy_constraints`, `graph_authoring_allowed`, and `warnings`.
+Return: `status`, `tier`, `selected_workers`, `role_routes`, `capability_gaps`, `policy_constraints`, `graph_authoring_allowed`, and `warnings`.

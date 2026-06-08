@@ -24,7 +24,9 @@ The plugin is not the APXM runtime. It teaches agents how to invoke APXM
 correctly. APXM/Dekk remains the execution authority.
 
 The plugin does not assume Claude or Codex are installed. Execute-capable skills
-start from preflight and select from verified workers.
+start from preflight, map workflow roles to capabilities, and select from
+verified APXM profiles. Codex-as-planner and Claude-as-executor is an example
+policy binding, not a requirement.
 
 See `docs/APXM-PLUGIN-FLOW.md` for the plain-text flowchart and boundary model.
 
@@ -32,6 +34,12 @@ See `docs/APXM-PLUGIN-FLOW.md` for the plain-text flowchart and boundary model.
 
 ```bash
 python3 plugins/apxm/scripts/apxm_doctor.py
+```
+
+If APXM is available only through a Dekk worktree, pass it explicitly:
+
+```bash
+python3 plugins/apxm/scripts/apxm_doctor.py --apxm-cwd /path/to/apxm
 ```
 
 ## Install As A Marketplace

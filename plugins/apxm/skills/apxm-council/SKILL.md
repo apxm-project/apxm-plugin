@@ -16,20 +16,22 @@ Use this skill to ask APXM for a structured council. A council is not a loose pr
 python3 "$PLUGIN_ROOT/scripts/apxm_doctor.py"
 ```
 
+If `apxm` is not installed globally and Dekk needs the APXM worktree, set `APXM_WORKTREE=/path/to/apxm` or pass `--apxm-cwd /path/to/apxm`.
+
 3. If no APXM route is ready, return `setup_required` with the doctor warnings.
-4. Prefer the native command when present:
+4. Create a compact council request in `.apxm/requests/` and hand it to `apxm-compile-and-execute`.
+
+If a native council command is present in `dekk apxm --help`, it may replace the request handoff:
 
 ```bash
 dekk apxm council --task "<decision or question>" --policy <policy.json>
 ```
 
-5. Until that surface exists, route through orchestration:
+5. If a native orchestration command is present, a council can also route through it:
 
 ```bash
 dekk apxm orchestrate --workflow council --task "<decision or question>" --policy <policy.json>
 ```
-
-If neither command exists but APXM can execute graphs, create a compact council request in `.apxm/requests/` and hand it to `apxm-compile-and-execute`.
 
 ## Council Rules
 

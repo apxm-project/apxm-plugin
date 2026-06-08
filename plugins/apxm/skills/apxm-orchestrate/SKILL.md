@@ -16,12 +16,16 @@ Use this skill to route substantial work through APXM. Do not simulate a worker 
 python3 "$PLUGIN_ROOT/scripts/apxm_doctor.py"
 ```
 
+If `apxm` is not installed globally and Dekk needs the APXM worktree, set `APXM_WORKTREE=/path/to/apxm` or pass `--apxm-cwd /path/to/apxm`.
+
 3. If preflight returns `setup_required`, stop and return the setup gap. Do not pretend orchestration ran.
 4. Before fan-out execution, verify the intended workers:
 
 ```bash
-python3 "$PLUGIN_ROOT/scripts/apxm_doctor.py" --verify-workers codex,claude
+python3 "$PLUGIN_ROOT/scripts/apxm_doctor.py" --verify-workers <worker-a>,<worker-b>
 ```
+
+Use `--policy <policy.json>` when a policy declares `worker_roles`, `preferred_workers`, or `allowed_workers`; the doctor will report role routes and missing capabilities.
 
 5. If an executable canonical APXM graph already exists, prefer:
 
@@ -29,18 +33,19 @@ python3 "$PLUGIN_ROOT/scripts/apxm_doctor.py" --verify-workers codex,claude
 dekk apxm execute <workflow.air>
 ```
 
-6. For a natural-language task, prefer the native orchestration surface when present:
+6. For a natural-language task, create a compact APXM request under `.apxm/requests/` and hand it to the compile/execute path. The request should contain only objective, constraints, desired artifacts, worker requirements, budget, and verification requirements. Do not pass PlanGraph JSON directly to `dekk apxm validate`; current APXM validation expects canonical `.air`.
+
+If a native orchestration command is present in `dekk apxm --help`, it may replace the request handoff:
 
 ```bash
 dekk apxm orchestrate --task "<brief objective>" --policy <policy.json>
 ```
 
-If that command is not available yet, produce a compact APXM request under `.apxm/requests/` and hand it to the compile/execute path. The request should contain only objective, constraints, desired artifacts, worker requirements, budget, and verification requirements. Do not pass PlanGraph JSON directly to `dekk apxm validate`; current APXM validation expects canonical `.air`.
-
 ## Delegation Rules
 
 - Keep delegated prompts short. Send objectives, constraints, inputs, expected artifacts, and success checks.
 - Use APXM worker discovery, not hard-coded assumptions about Claude, Codex, or any other host.
+- Model the workflow by roles (`planner`, `executor`, `reviewer`, `verifier`, `synthesizer`) and let APXM/policy bind those roles to verified worker profiles.
 - Treat worker-authored graphs as proposals until APXM validates and adopts them.
 - Require a budget policy before expensive or headless fan-out.
 - Prefer fan-out for independent subtasks and fan-in for synthesis, critique, merge, or verification.

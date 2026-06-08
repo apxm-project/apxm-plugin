@@ -16,10 +16,12 @@ Use this skill to debug APXM host readiness. Do not equate an installed CLI with
 python3 "$PLUGIN_ROOT/scripts/apxm_doctor.py"
 ```
 
+If `apxm` is not installed globally and Dekk needs the APXM worktree, set `APXM_WORKTREE=/path/to/apxm` or pass `--apxm-cwd /path/to/apxm`.
+
 3. Verify specific candidate routes before using them:
 
 ```bash
-python3 "$PLUGIN_ROOT/scripts/apxm_doctor.py" --verify-workers codex,claude
+python3 "$PLUGIN_ROOT/scripts/apxm_doctor.py" --verify-workers <profile-a>,<profile-b>
 ```
 
 4. Inspect APXM host state when available:
@@ -33,6 +35,7 @@ dekk apxm doctor
 ## Host Readiness Checks
 
 - Executable is on `PATH`.
+- The profile is APXM-resolvable from `dekk apxm agent list --json`, either as a built-in template, a custom registration, or a future transport adapter.
 - Authentication is configured outside the prompt.
 - Noninteractive or ACP mode is supported.
 - APXM can spawn the process.

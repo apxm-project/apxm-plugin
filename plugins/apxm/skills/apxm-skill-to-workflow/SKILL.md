@@ -17,6 +17,8 @@ Use this skill to convert an agent skill into an APXM workflow. The output shoul
 python3 "$PLUGIN_ROOT/scripts/apxm_doctor.py"
 ```
 
+If `apxm` is not installed globally and Dekk needs the APXM worktree, set `APXM_WORKTREE=/path/to/apxm` or pass `--apxm-cwd /path/to/apxm`.
+
 4. Prefer the native converter when present:
 
 ```bash

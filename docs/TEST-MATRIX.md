@@ -5,11 +5,12 @@ Use this matrix to test the plugin without collapsing distinct readiness states 
 ## Packaging
 
 ```bash
-python3 /home/raherrer/.codex/skills/.system/plugin-creator/scripts/validate_plugin.py plugins/apxm
+python3 -m json.tool plugins/apxm/.codex-plugin/plugin.json >/dev/null
 python3 -m unittest discover -s tests -p 'test_*.py'
+codex plugin add apxm@apxm
 ```
 
-Expected: plugin schema is valid and doctor classification tests pass.
+Expected: plugin manifest JSON is valid, doctor classification tests pass, and Codex installs the APXM plugin from the configured marketplace.
 
 ## APXM Runtime Setup
 
@@ -27,18 +28,27 @@ Expected: APXM compiler is ready. Bubblewrap may warn on machines without host s
 
 ```bash
 python3 plugins/apxm/scripts/apxm_doctor.py
-python3 plugins/apxm/scripts/apxm_doctor.py --verify-workers codex,claude
+python3 plugins/apxm/scripts/apxm_doctor.py --apxm-cwd /path/to/apxm
+python3 plugins/apxm/scripts/apxm_doctor.py --verify-workers all-candidates
+python3 plugins/apxm/scripts/apxm_doctor.py --verify-workers <profile-a>,<profile-b>
 dekk apxm agent templates --json
 dekk apxm agent list --json
 ```
 
-Expected: APXM templates are visible. Candidate executables do not count as verified workers until an APXM spawn test succeeds. When `codex` and `claude` spawn successfully, doctor should report Tier 3 unless live budget enforcement is also verified.
+Expected: APXM templates and custom registrations are visible. If `apxm` is not installed globally, use `--apxm-cwd` or `APXM_WORKTREE` so Dekk runs from the APXM worktree. Candidate executables do not count as verified workers until an APXM spawn test succeeds. When two distinct profiles spawn successfully, doctor should report Tier 3 unless live budget enforcement is also verified.
+
+Optional role policy check:
+
+```bash
+python3 plugins/apxm/scripts/apxm_doctor.py --policy /path/to/policy.json --verify-workers <planner>,<executor>
+```
+
+Expected: `role_routes` reports selected verified workers or concrete missing capabilities. Provider names are preferences, not assumptions.
 
 ## Worker Spawn
 
 ```bash
-dekk apxm agent test codex
-dekk apxm agent test claude
+dekk apxm agent test <profile>
 ```
 
 Expected: each route either becomes verified by APXM or reports a concrete spawn/auth/protocol failure.

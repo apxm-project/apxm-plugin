@@ -8,7 +8,7 @@ This plugin is the distribution layer for APXM orchestration skills. It teaches 
 [User asks for big work]
           |
           v
-[Codex/agent triggers APXM skill]
+[Any capable agent triggers APXM skill]
           |
           v
 [Skill runs apxm_doctor preflight]
@@ -16,10 +16,16 @@ This plugin is the distribution layer for APXM orchestration skills. It teaches 
           +--------------------+
           |                    |
           v                    v
-[APXM not ready]        [APXM ready]
+[APXM route missing]    [APXM ready]
           |                    |
           v                    v
 [Return setup gap]      [Discover verified workers]
+          |                    |
+          v                    v
+[Install apxm or set]   [Map roles to capabilities]
+[APXM_WORKTREE]                |
+                               v
+                    [Bind preferred workers if policy allows]
                                |
                                v
                     [Create compact task request]
@@ -57,7 +63,7 @@ This plugin is the distribution layer for APXM orchestration skills. It teaches 
 - Discover readiness through `scripts/apxm_doctor.py`.
 - Encourage compact request envelopes instead of giant prompts.
 - Keep councils, workers, compile/execute, verification, and MCP boundaries explicit.
-- Distribute the workflow as a Codex plugin marketplace repo.
+- Distribute the workflow as a Codex plugin marketplace repo while keeping APXM worker routing agent-agnostic.
 
 ## APXM Responsibilities
 
@@ -71,16 +77,19 @@ This plugin is the distribution layer for APXM orchestration skills. It teaches 
 
 ## Worker Model
 
-Claude and Codex are useful defaults, but not assumptions. A worker can be any APXM-verified route that supports the requested capability:
+A worker can be any APXM-verified route that supports the requested capability. Codex planning and Claude execution is a useful example policy, not a runtime requirement:
 
 ```text
 [APXM registry]
       |
       v
-[Candidate templates]
+[Templates + custom registrations + future transports]
       |
       v
-[Spawn/prompt/stop verification]
+[Executable/auth/protocol checks]
+      |
+      v
+[Spawn/prompt/observe/stop verification]
       |
       +--> [not verified] -> [candidate only]
       |
@@ -94,6 +103,57 @@ Claude and Codex are useful defaults, but not assumptions. A worker can be any A
 ```
 
 Any worker-authored graph remains untrusted until APXM validates, compiles, and admits it.
+
+## Role Routing Flow
+
+```text
+[Workflow objective]
+       |
+       v
+[Required roles]
+       |
+       +--> planner: read + graph_author
+       |
+       +--> executor: execute
+       |
+       +--> reviewer: read + critique/evidence policy
+       |
+       +--> verifier: execute checks
+       |
+       v
+[APXM doctor builds worker roster]
+       |
+       v
+[Policy filters allowed workers]
+       |
+       v
+[Preferred workers break ties]
+       |
+       +--> [role missing] -> [return capability/setup gap]
+       |
+       v
+[APXM admits verified worker routes]
+       |
+       v
+[Graph executes with trace, budget, stop policy]
+```
+
+Example policy binding:
+
+```json
+{
+  "worker_roles": {
+    "planner": { "required_capabilities": ["read", "graph_author"] },
+    "executor": { "required_capabilities": ["execute"] }
+  },
+  "preferred_workers": {
+    "planner": ["codex"],
+    "executor": ["claude"]
+  }
+}
+```
+
+The same policy shape works with `gemini`, `cursor`, `qwen`, `opencode`, or a custom profile registered by `dekk apxm agent add <name> --command "<cmd>"`.
 
 ## Skill-To-Workflow Flow
 
