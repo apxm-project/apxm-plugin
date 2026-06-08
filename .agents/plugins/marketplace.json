@@ -1,0 +1,20 @@
+{
+  "name": "apxm",
+  "interface": {
+    "displayName": "APXM"
+  },
+  "plugins": [
+    {
+      "name": "apxm",
+      "source": {
+        "source": "local",
+        "path": "./plugins/apxm"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

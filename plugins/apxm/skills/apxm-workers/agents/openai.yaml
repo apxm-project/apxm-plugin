@@ -1,0 +1,6 @@
+interface:
+  display_name: "APXM Workers"
+  short_description: "Discover and select verified APXM workers"
+  default_prompt: "Use $apxm-workers to select verified workers for this APXM run."
+policy:
+  allow_implicit_invocation: true

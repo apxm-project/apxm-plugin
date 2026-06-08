@@ -1,0 +1,43 @@
+{
+  "name": "apxm",
+  "version": "0.1.0",
+  "description": "APXM orchestration workflows for Codex: councils, verified workers, graph execution, skill-to-workflow conversion, and trace verification.",
+  "author": {
+    "name": "APXM Project",
+    "url": "https://github.com/apxm-project"
+  },
+  "homepage": "https://github.com/apxm-project/apxm-plugin",
+  "repository": "https://github.com/apxm-project/apxm-plugin",
+  "license": "MIT",
+  "keywords": [
+    "apxm",
+    "orchestration",
+    "council",
+    "workers",
+    "skills",
+    "workflow",
+    "graph"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "APXM",
+    "shortDescription": "Graph-native orchestration and council workflows",
+    "longDescription": "APXM packages reusable Codex skills for selecting verified workers, running traceable multi-perspective councils, converting skills into APXM workflows, executing APXM graphs through Dekk, and verifying traces.",
+    "developerName": "APXM Project",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive",
+      "Read",
+      "Write"
+    ],
+    "websiteURL": "https://github.com/apxm-project/apxm-plugin",
+    "privacyPolicyURL": "https://github.com/apxm-project/apxm-plugin/blob/main/PRIVACY.md",
+    "termsOfServiceURL": "https://github.com/apxm-project/apxm-plugin/blob/main/TERMS.md",
+    "brandColor": "#0F766E",
+    "defaultPrompt": [
+      "Run an APXM Council on this decision.",
+      "Use APXM to orchestrate this task across agents.",
+      "Ask an APXM worker to propose a graph."
+    ]
+  }
+}

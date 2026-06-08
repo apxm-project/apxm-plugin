@@ -1,0 +1,6 @@
+interface:
+  display_name: "APXM Orchestrate"
+  short_description: "Fan-out orchestration through APXM"
+  default_prompt: "Use $apxm-orchestrate to decompose and execute this task through APXM."
+policy:
+  allow_implicit_invocation: true

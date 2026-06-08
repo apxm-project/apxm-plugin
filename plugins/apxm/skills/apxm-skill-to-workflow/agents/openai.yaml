@@ -1,0 +1,6 @@
+interface:
+  display_name: "APXM Skill To Workflow"
+  short_description: "Convert skills into APXM workflows"
+  default_prompt: "Use $apxm-skill-to-workflow to convert this skill into an APXM workflow."
+policy:
+  allow_implicit_invocation: true

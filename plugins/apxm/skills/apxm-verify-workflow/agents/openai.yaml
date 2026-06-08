@@ -1,0 +1,6 @@
+interface:
+  display_name: "APXM Verify Workflow"
+  short_description: "Verify APXM traces and artifacts"
+  default_prompt: "Use $apxm-verify-workflow to verify this APXM run and its artifacts."
+policy:
+  allow_implicit_invocation: true

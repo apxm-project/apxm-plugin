@@ -1,0 +1,6 @@
+interface:
+  display_name: "APXM Compile And Execute"
+  short_description: "Validate, compile, and run APXM graphs"
+  default_prompt: "Use $apxm-compile-and-execute to validate and run this APXM graph."
+policy:
+  allow_implicit_invocation: true

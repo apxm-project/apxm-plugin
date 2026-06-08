@@ -1,0 +1,6 @@
+interface:
+  display_name: "APXM Headless Hosts"
+  short_description: "Debug APXM headless worker hosts"
+  default_prompt: "Use $apxm-headless-hosts to validate the available APXM host routes."
+policy:
+  allow_implicit_invocation: true

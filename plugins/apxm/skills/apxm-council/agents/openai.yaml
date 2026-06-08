@@ -1,0 +1,6 @@
+interface:
+  display_name: "APXM Council"
+  short_description: "Traceable multi-perspective APXM review"
+  default_prompt: "Use $apxm-council to review this decision with APXM workers."
+policy:
+  allow_implicit_invocation: true
