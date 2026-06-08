@@ -89,10 +89,46 @@ For background `.apxmw` execution, the returned JSON must include `pid`, `sessio
 ## Autonomous Loops
 
 ```bash
-python3 plugins/apxm/scripts/apxm_doctor.py --verify-workers all-candidates
+python3 plugins/apxm/scripts/apxm_doctor.py --apxm-cwd /path/to/apxm
 dekk apxm agent list --json
 dekk apxm agent templates --json
 dekk apxm process list --json
 ```
 
-Expected: loop design starts from verified workers and APXM control surfaces, not from hard-coded provider names. If the current APXM build lacks native server trigger APIs, the plugin should produce a loop spec or workflow pack and report the trigger registry gap instead of claiming that the server armed the trigger. Background loop tests should expose either server-owned `execution_id`/`session_id` or APXM-launched workflow background handles, never a raw shell `&` process as the control plane.
+Expected: loop design starts from APXM OS trigger sidecars, existing APXM server skill execution, verified workers, and concrete follow/stop handles. The plugin should report missing APXM OS trigger loading, missing skill execution, missing run observation, missing worker verification, or missing background workflow handles instead of claiming that the trigger was armed.
+
+Design-only checks must not spawn-test every candidate worker. Use explicit spawn verification only when execution policy must bind workers:
+
+```bash
+python3 plugins/apxm/scripts/apxm_doctor.py --apxm-cwd /path/to/apxm --verify-workers <planner>,<executor>,<verifier>
+```
+
+Expected: role routes select verified workers or report concrete missing roles. Provider names are examples only.
+
+Caller coverage:
+
+```text
+[APXM OS]      trigger sidecar -> POST /v1/skills/{id}/execute -> run events
+[Agent/MCP]    existing APXM MCP tool or skill call -> trace/follow
+[Frontend]     writes artifacts/specs -> observes REST/SSE
+[Dekk CLI]     local validate/execute/background -> session/process/rollout follow
+```
+
+Plan-splitting coverage:
+
+```text
+[objective/event] -> [roles] -> [verified worker routes] -> [compact briefs] -> [fan-in eval]
+```
+
+Expected: every worker brief includes objective, input refs, constraints, expected artifact, evidence/check command, budget, timeout, and stop conditions. Worker-authored graphs remain proposals until APXM validates and admits them.
+
+Interruption coverage:
+
+```text
+[cancel|timeout|duplicate|worker failure|checkpoint]
+      |
+      v
+[APXM OS re-arm/suppress] or [APXM server cancel/checkpoint/resume] or [task lease/fail] or [Dekk/APXM process stop]
+```
+
+Expected: every governed loop path has a follow handle and a stop/resume/cancel policy. A raw shell background process is not a governed loop.

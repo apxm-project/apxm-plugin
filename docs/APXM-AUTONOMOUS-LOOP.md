@@ -135,6 +135,57 @@ Do not add APXM server trigger APIs for the MVP just to make the diagram look co
 
 The heavy context should live in APXM artifacts and skill packs, not in the prompt. If a frontend authors this flow later, its first output should be skill/workflow artifacts plus APXM OS trigger metadata, not a parallel runtime.
 
+## Caller And Worker Flow
+
+```text
+[Caller]
+   |
+   +--> [APXM OS] -------> [provider event -> skill execute]
+   |
+   +--> [Agent via MCP] -> [existing APXM tool/skill call]
+   |
+   +--> [Frontend] -----> [author artifacts, observe run]
+   |
+   +--> [Dekk CLI] -----> [local validate/execute/follow]
+                           |
+                           v
+                    [APXM graph/workflow]
+                           |
+          +----------------+----------------+
+          |                |                |
+          v                v                v
+      [planner]       [executor]       [verifier]
+          |                |                |
+          +----------------+----------------+
+                           |
+                           v
+                    [eval + synthesis]
+```
+
+Plans should split into roles with compact worker briefs: objective, input refs, constraints, expected artifact, evidence/check command, budget, timeout, and stop conditions. APXM should validate worker-authored graphs before execution.
+
+## Interruption Flow
+
+```text
+[Cancel / timeout / duplicate / worker failure / checkpoint]
+          |
+          v
+[Controller with run or trigger handle]
+          |
+          +--> [APXM OS re-arms or suppresses trigger]
+          |
+          +--> [APXM server cancel/checkpoint/resume]
+          |
+          +--> [task lease expiry or failed completion]
+          |
+          +--> [Dekk/APXM process stop for local background workflow]
+          |
+          v
+[record final state + evidence]
+```
+
+If a path has no follow or stop handle, it is not a governed autonomous loop.
+
 ## Draft Loop Spec Shape
 
 ```json
@@ -169,6 +220,13 @@ The heavy context should live in APXM artifacts and skill packs, not in the prom
     "on_needs_more": "emit_event",
     "on_blocked": "checkpoint",
     "on_failed": "enqueue_task"
+  },
+  "interrupt_policy": {
+    "on_cancel": "cancel_run",
+    "on_timeout": "cancel_run",
+    "on_duplicate": "suppress",
+    "on_worker_failure": "checkpoint",
+    "on_checkpoint": "pause_until_resume"
   },
   "policy": {
     "max_iterations": 5,

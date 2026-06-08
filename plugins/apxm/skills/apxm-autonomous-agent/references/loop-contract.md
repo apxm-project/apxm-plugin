@@ -30,6 +30,18 @@ Use this contract when turning an idea like "run an agent in the background and 
 
 The plugin only teaches agents how to request this. APXM server, APXM OS, Dekk, and the runtime remain the execution authority.
 
+## Caller Matrix
+
+| Caller | Calls | Purpose | Follow/stop surface |
+|---|---|---|---|
+| APXM OS provider connector | `POST /v1/skills/{id}/execute` | Event-triggered loop from Discord, GitHub, cron, files, queues, or webhooks | `/v1/runs/{execution_id}/events`, checkpoint resume, run cancel |
+| Agent host through MCP | Existing APXM MCP tools such as `apxm_skill_call`, `apxm_run`, `apxm_trace_fetch` | Agent-initiated compile/run/follow when a human or parent agent asks | MCP result plus server run events when available |
+| Dekk/APXM CLI | `dekk apxm workflow ...`, `dekk apxm session ...`, `dekk apxm rollout ...` | Local fallback, developer testing, detached workflow follow handles | session directory, process list, rollout/session inspect |
+| Frontend | REST/SSE or generated workflow/trigger artifacts | Author specs and observe runs | server events, checkpoints, cancellation |
+| Worker agent | APXM worker prompt/spawn route selected by policy | Execute one assigned role, propose a graph, review, or verify | APXM runtime/process-table events, worker artifact |
+
+No caller should bypass APXM validation/admission for worker-authored graphs or hide a long-running shell loop outside APXM.
+
 ## Canonical Loop
 
 ```text
@@ -134,6 +146,46 @@ Minimum fields: `source`, `kind`, `subject`, `idempotency_key`, and `payload`.
 - `agent_wake`: planned extension; only use when the target APXM build exposes it.
 - `mcp_tool`: planned extension for allowlisted APXM MCP calls; only use when capability inventory confirms it.
 
+## Plan Split And Worker Handoff
+
+Split work by role and artifact, not by dumping one large prompt into every worker.
+
+```text
+[Objective or event]
+        |
+        v
+[Classify required roles]
+        |
+        +--> planner: graph or task split proposal
+        +--> executor: bounded implementation/action
+        +--> reviewer: critique and dissent
+        +--> verifier: checks and evidence
+        +--> synthesizer: final merge
+        |
+        v
+[Resolve role policy against verified workers]
+        |
+        +--> [missing role] -> [return capability gap]
+        |
+        v
+[Create compact worker briefs]
+        |
+        +--> objective
+        +--> input refs, not whole repo dumps
+        +--> constraints and policy
+        +--> expected artifact
+        +--> verification command or evidence
+        +--> budget, timeout, stop conditions
+        |
+        v
+[APXM executes graph/workflow and records role outputs]
+        |
+        v
+[Fan-in eval/synthesis]
+```
+
+Worker output should carry `role`, `worker_id`, `node_id` or step id, `status`, `artifact_refs`, `evidence_refs`, `warnings`, and `next_action`. A worker-authored graph is only a proposal until APXM validates, compiles, and admits it.
+
 ## Eval Contract
 
 Eval returns one of four states:
@@ -175,6 +227,34 @@ Only `needs_more` may automatically loop, and only while budget, timeout, and it
 ```
 
 The loop should be inspectable through APXM server run events or APXM workflow session output. A background process without an APXM run ID or APXM OS trigger record is only a local process, not a governed autonomous loop.
+
+## Interruptions
+
+Interruptions are normal control-plane events, not exceptional prompt text.
+
+```text
+[Interrupt source]
+        |
+        +--> human cancel or approval denial
+        +--> timeout or budget exhaustion
+        +--> duplicate/superseding provider event
+        +--> worker spawn/auth/protocol failure
+        +--> failed eval or unsafe result
+        +--> checkpoint needs human input
+        |
+        v
+[Controller handles interrupt]
+        |
+        +--> APXM OS stops/re-arms provider trigger
+        +--> APXM server cancel/checkpoint/resume when run id exists
+        +--> task lease expires or task is completed failed
+        +--> local workflow process is stopped through APXM/Dekk handle
+        |
+        v
+[Record event + final state]
+```
+
+Each loop spec should define `interrupt_policy` with `on_cancel`, `on_timeout`, `on_duplicate`, `on_worker_failure`, `on_eval_failed`, and `on_checkpoint`. If the target APXM build lacks a stop/follow handle for the selected path, the skill must report that gap before launching.
 
 ## MVP Path
 

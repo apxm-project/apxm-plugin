@@ -104,8 +104,8 @@ Confirm these with `apxm_doctor.py`, APXM capability inventory, or the target se
 
 ## When To Load References
 
-Load `references/loop-contract.md` before writing a loop spec, trigger schema, or workflow-pack contract. For MCP/server implementation work, use `apxm-mcp` or APXM core docs instead.
+Load `references/loop-contract.md` before writing a loop spec, trigger schema, workflow-pack contract, role-splitting plan, worker handoff contract, or interruption policy. For MCP/server implementation work, use `apxm-mcp` or APXM core docs instead.
 
 ## Result Shape
 
-Return: `status`, `control_plane`, `event_sources`, `triggers`, `actions`, `evals`, `feedback`, `workers`, `run_ids`, `follow_surface`, `budget_policy`, `cancel_path`, `gaps`, and `next_action`.
+Return: `status`, `caller`, `control_plane`, `event_sources`, `triggers`, `actions`, `role_split`, `worker_briefs`, `evals`, `feedback`, `interrupt_policy`, `workers`, `run_ids`, `follow_surface`, `budget_policy`, `cancel_path`, `gaps`, and `next_action`.
