@@ -215,7 +215,7 @@ The original skill stays as the trigger layer. APXM becomes the graph execution 
 [External/Internal event]
           |
           v
-[APXM OS or server event intake]
+[APXM OS trigger sidecar or direct server call]
           |
           v
 [Normalize + dedupe]
@@ -252,7 +252,7 @@ The original skill stays as the trigger layer. APXM becomes the graph execution 
  [record result + memory]       [loop or re-arm]        [checkpoint/cancel]
 ```
 
-APXM server is the preferred owner for autonomous loops because it can own `execution_id`, `session_id`, retained events, cancellation, policy, worker admission, and server-controlled session roots. APXM OS should own external provider listeners and trigger sidecars. MCP should remain the agent-facing control surface, while REST/SSE remains the frontend and watcher surface. Dekk/APXM CLI remains the fallback for local background `.apxmw` jobs.
+For provider-triggered loops, keep the outer event loop in APXM OS: provider listener, trigger sidecar, dedupe, policy, and event-to-skill dispatch. APXM server remains the execution and observation gateway with `execution_id`, retained events, cancellation, policy, worker admission, and server-controlled session roots when those surfaces are available. MCP should remain the thin agent-facing surface, while REST/SSE remains the frontend and watcher surface. Dekk/APXM CLI remains the fallback for local background `.apxmw` jobs.
 
 See `docs/APXM-AUTONOMOUS-LOOP.md` and the `apxm-autonomous-agent` skill for the loop contract.
 

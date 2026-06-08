@@ -2,7 +2,7 @@
 
 Use this contract when turning an idea like "run an agent in the background and call it when needed" into an APXM-owned workflow.
 
-## Boundary
+## Target Boundary
 
 ```text
 [External systems]
@@ -10,12 +10,13 @@ Use this contract when turning an idea like "run an agent in the background and 
           |
           v
 [APXM OS connectors]
-   provider auth, subscription, provider event normalization
+   provider auth, subscription, trigger sidecars, dedupe,
+   retry, provider event normalization, event-to-skill routing
           |
           v
-[APXM server control plane]
-   event intake, trigger registry, policy, run/session IDs,
-   event retention, task queue, checkpoints, cancellation
+[APXM server execution gateway]
+   skill execution, run/session IDs, retained events,
+   checkpoints, cancellation, rollout/session evidence
           |
           v
 [APXM runtime]
@@ -102,7 +103,7 @@ Minimum fields: `source`, `kind`, `subject`, `idempotency_key`, and `payload`.
     "max_iterations": 5
   },
   "action": {
-    "type": "skill|air|workflow|task|agent_wake",
+    "type": "skill|workflow|task",
     "target": "skill-id-or-path-or-queue",
     "inputs_from_event": {
       "message": "payload.content",
@@ -128,11 +129,10 @@ Minimum fields: `source`, `kind`, `subject`, `idempotency_key`, and `payload`.
 ## Action Types
 
 - `skill`: call an installed APXM skill.
-- `air`: execute a canonical `.air` graph.
-- `workflow`: launch a `.apxmw` workflow, preferably through server-owned workflow start when available.
-- `task`: enqueue work for external workers to claim through `/v1/tasks`.
-- `agent_wake`: deliver a message or event to a registered long-lived agent.
-- `mcp_tool`: call an allowlisted APXM MCP tool; keep this thin.
+- `workflow`: launch a `.apxmw` workflow when the target APXM build exposes a workflow execution/follow surface.
+- `task`: enqueue work for explicit claim/complete queue semantics.
+- `agent_wake`: planned extension; only use when the target APXM build exposes it.
+- `mcp_tool`: planned extension for allowlisted APXM MCP calls; only use when capability inventory confirms it.
 
 ## Eval Contract
 
@@ -154,13 +154,16 @@ Only `needs_more` may automatically loop, and only while budget, timeout, and it
 ## Background Agent Lifecycle
 
 ```text
-[register worker/agent]
+[APXM OS arms trigger]
           |
           v
-[start background loop]
+[provider event arrives]
           |
           v
-[server returns execution_id + session_id]
+[APXM OS calls APXM server skill execution]
+          |
+          v
+[server returns execution_id]
           |
           +--> [follow events]
           |
@@ -171,36 +174,22 @@ Only `needs_more` may automatically loop, and only while budget, timeout, and it
           +--> [cancel/stop]
 ```
 
-The agent should be inspectable through server run events or APXM workflow session output. A background process without an APXM run ID is only a local process, not a governed autonomous agent.
+The loop should be inspectable through APXM server run events or APXM workflow session output. A background process without an APXM run ID or APXM OS trigger record is only a local process, not a governed autonomous loop.
 
 ## MVP Path
 
-1. Use APXM OS or a small connector to normalize provider events.
-2. Store trigger definitions beside workflow packs or skills while native server trigger storage is missing.
-3. Dispatch to APXM server through MCP or REST.
-4. Use existing run events, tasks, checkpoints, agent registration, and workflow background sessions for observability.
-5. Add native server APIs when ready:
+1. Keep external event loops in APXM OS.
+2. Store trigger definitions beside workflow packs or skills as sidecars.
+3. APXM OS normalizes events, dedupes them, applies deployment policy, and calls `POST /v1/skills/{id}/execute`.
+4. Use existing run events, checkpoints, cancellation, rollout/session output, and task queues only when their current semantics fit.
+5. Do not add APXM server trigger registry APIs for MVP; use APXM server as the execution gateway.
+
+Existing or target MCP tools that may be useful after capability inventory confirms them:
 
 ```text
-POST /v1/events
-GET  /v1/triggers
-POST /v1/triggers
-POST /v1/triggers/{id}/enable
-POST /v1/triggers/{id}/disable
-POST /v1/agents/background/start
-GET  /v1/agents/background/{id}
-POST /v1/agents/background/{id}/stop
-```
-
-Recommended MCP tool wrappers:
-
-```text
-apxm_event_emit
-apxm_trigger_register
-apxm_trigger_list
-apxm_agent_start
-apxm_agent_status
-apxm_agent_stop
+apxm_skill_call
+apxm_run
+apxm_trace_fetch
 apxm_workflow_start
 apxm_workflow_events
 apxm_workflow_cancel
@@ -211,6 +200,7 @@ apxm_workflow_cancel
 - Treating Claude, Codex, or any provider as required infrastructure.
 - Running a hidden shell loop outside APXM and calling it autonomous.
 - Triggering actions without dedupe, budget, timeout, and cancel controls.
-- Letting APXM OS connectors decide runtime policy.
+- Hiding graph semantics or sandbox policy inside provider connector code.
+- Adding APXM server trigger APIs before APXM OS sidecar-to-skill execution is exhausted.
 - Letting MCP tools contain orchestration business logic.
 - Executing worker-authored graphs without APXM validation and admission.

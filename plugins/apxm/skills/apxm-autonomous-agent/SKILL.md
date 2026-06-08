@@ -1,6 +1,6 @@
 ---
 name: apxm-autonomous-agent
-description: Use when designing, registering, running, following, or stopping APXM autonomous agents that react to events, triggers, background loops, task queues, or feedback cycles through APXM server, APXM OS, MCP, REST/SSE, or Dekk.
+description: Use when designing APXM-owned event-triggered loop specs or workflow packs, and when identifying which APXM server/MCP/Dekk capabilities are missing. Do not use as the primary skill for generic MCP usage, workflow following, worker selection, or execution.
 ---
 
 # APXM Autonomous Agent
@@ -18,27 +18,28 @@ python3 "$PLUGIN_ROOT/scripts/apxm_doctor.py"
 
 If `apxm` is not installed globally and Dekk needs the APXM worktree, set `APXM_WORKTREE=/path/to/apxm` or pass `--apxm-cwd /path/to/apxm`.
 
-3. Discover workers by capability, not brand:
+3. If execution or worker binding is required, discover workers by capability. Do not spawn-test all candidates for design-only work:
 
 ```bash
-python3 "$PLUGIN_ROOT/scripts/apxm_doctor.py" --verify-workers all-candidates
 dekk apxm agent list --json
 dekk apxm agent templates --json
 ```
 
-4. Prefer the server control plane:
+Use `python3 "$PLUGIN_ROOT/scripts/apxm_doctor.py" --verify-workers <profiles>` only when an actual execution policy must bind verified workers.
+
+4. Prefer the existing OS-to-server path for provider-triggered loops:
 
 ```text
 [Need autonomous loop]
         |
-        +--> [APXM server/MCP available] -> [MCP for agents, REST/SSE for UI]
+        +--> [APXM OS connector exists]  -> [OS trigger sidecar calls server skill]
         |
-        +--> [APXM OS connector exists]  -> [OS receives provider event, server owns run]
+        +--> [Agent calls APXM directly] -> [MCP/REST skill call, then follow run events]
         |
         +--> [No server]                 -> [Dekk/APXM background workflow fallback]
 ```
 
-5. If no native trigger registry exists in the current APXM build, create the loop spec or workflow pack and report `trigger_registry_missing`. Do not claim the server armed the trigger.
+5. If APXM OS cannot arm the trigger sidecar or the target APXM server cannot execute/follow the skill, create the loop spec or workflow pack and report the concrete gap. Do not claim the trigger was armed.
 
 ## Loop Shape
 
@@ -80,18 +81,20 @@ dekk apxm agent templates --json
  [record result + memory]       [loop or re-arm]       [checkpoint/cancel]
 ```
 
-## Current Useful APXM Surfaces
+## Surfaces To Confirm
+
+Confirm these with `apxm_doctor.py`, APXM capability inventory, or the target server before claiming they exist.
 
 - Server/MCP: `apxm_run`, `apxm_dispatch`, `apxm_plan_as_graph`, `apxm_trace_fetch`, capability and skill inventory/call tools.
 - Server REST/SSE: `/v1/runs`, `/v1/runs/:id/events`, `/events/stream`, `/cancel`, `/v1/tasks`, `/v1/checkpoints`, `/v1/agents/register`, `/v1/receive`, `/v1/mcp`.
 - Runtime: `AUTONOMOUS` plan/action/eval loops, `mode=recv` event polling, tool-enabled autonomous turns, `WORKFLOW_SPAWN`, `SPAWN_AGENT`, task claiming, checkpoints.
-- APXM OS: external provider listeners and trigger sidecars, such as Discord `triggers.toml`.
+- APXM OS: external provider listeners, trigger sidecars such as Discord `triggers.toml`, dedupe, retry, and event-to-skill routing.
 - Dekk/APXM CLI: local workflow validation, execution, background `.apxmw` follow handles, rollout replay, session inspect.
 
 ## Rules
 
-- APXM server is the preferred owner for long-running autonomous agents because it can own `execution_id`, `session_id`, retained events, cancellation, session roots, policy, worker admission, and rollout records.
-- APXM OS should own provider adapters and external listeners. It should feed normalized events into APXM server instead of embedding runtime policy in connector code.
+- Prefer APXM server for long-running autonomous agents when it exposes the needed control surfaces: `execution_id`, `session_id`, retained events, cancellation, session roots, policy, worker admission, and rollout records.
+- Put provider adapters, external listeners, trigger sidecar loading, dedupe, and retry in APXM OS when that connector layer exists. Keep graph semantics and sandbox internals out of connector code.
 - MCP should be a thin agent-facing control surface. It should not duplicate APXM scheduling, trigger matching, or policy.
 - A background agent must be a server-owned run or an APXM-launched background workflow. Do not use shell backgrounding as the control plane.
 - Every loop must declare `max_iterations`, timeout, budget, cancel path, idempotency key, and approval/checkpoint conditions.
@@ -101,7 +104,7 @@ dekk apxm agent templates --json
 
 ## When To Load References
 
-Load `references/loop-contract.md` before writing a loop spec, trigger schema, server API proposal, APXM OS connector plan, or background-agent lifecycle plan.
+Load `references/loop-contract.md` before writing a loop spec, trigger schema, or workflow-pack contract. For MCP/server implementation work, use `apxm-mcp` or APXM core docs instead.
 
 ## Result Shape
 

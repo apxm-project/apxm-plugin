@@ -1,7 +1,7 @@
 {
   "name": "apxm",
-  "version": "0.1.6",
-  "description": "APXM orchestration workflows for Codex: autonomous event loops, councils, verified workers, graph execution, skill-to-workflow conversion, trace verification, and workflow following.",
+  "version": "0.1.7",
+  "description": "APXM orchestration workflows for Codex: autonomous loop specs, councils, verified workers, graph execution, skill-to-workflow conversion, trace verification, and workflow following.",
   "author": {
     "name": "APXM Project",
     "url": "https://github.com/apxm-project"
@@ -26,7 +26,7 @@
   "interface": {
     "displayName": "APXM",
     "shortDescription": "Graph-native orchestration and council workflows",
-    "longDescription": "APXM packages reusable Codex skills for designing autonomous event-triggered loops, selecting verified workers, running traceable multi-perspective councils, converting skills into APXM workflows, executing APXM graphs through APXM server/Dekk, following live/offline workflow progress, and verifying traces.",
+    "longDescription": "APXM packages reusable Codex skills for designing APXM-owned event-triggered loop specs, selecting verified workers, running traceable multi-perspective councils, converting skills into APXM workflows, executing APXM graphs through APXM server/Dekk, following live/offline workflow progress, and verifying traces.",
     "developerName": "APXM Project",
     "category": "Productivity",
     "capabilities": [

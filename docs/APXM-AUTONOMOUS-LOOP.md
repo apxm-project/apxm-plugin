@@ -1,6 +1,6 @@
 # APXM Autonomous Loop
 
-This is the target architecture for APXM-managed autonomous agents: event -> trigger -> action -> eval -> feedback, with APXM server and APXM OS owning the control plane instead of individual agent prompts.
+This is a non-authoritative target contract for APXM-managed autonomous loops. The plugin only teaches agents how to request or design these loops; APXM server, APXM OS, Dekk, and runtime implementations remain authoritative.
 
 ## Core Idea
 
@@ -44,111 +44,98 @@ This is the target architecture for APXM-managed autonomous agents: event -> tri
 
 The important shift is that "autonomous" means APXM-owned lifecycle, not a model-owned while loop. A worker can be Codex, Claude, Gemini, Qwen, Cursor, opencode, or a custom profile, but APXM owns verification, session IDs, event records, policy, and cancellation.
 
-## Ownership
+## Boundary
 
 ```text
 [APXM plugin]
-   Teaches agents how to request APXM loops.
-   Ships skills, flowcharts, and contracts.
+   Agent-facing skills, preflight guidance, and draft loop contracts.
 
-[APXM OS]
-   Connects to providers such as Discord, GitHub, cron, file watchers, and webhooks.
-   Normalizes external events and forwards them to APXM server.
-
-[APXM server]
-   Owns event intake, trigger registry, policy, budget, run/session IDs,
-   retained events, SSE, cancellation, checkpoints, task queues, and worker admission.
-
-[APXM runtime]
-   Executes graphs, autonomous nodes, workflow spawn, agent spawn,
-   tool calls, eval nodes, and feedback actions.
-
-[Dekk/APXM CLI]
-   Developer and fallback surface for validation, workflow execution,
-   background `.apxmw` jobs, session inspect, watch, and rollout replay.
+[APXM implementation repos]
+   Server, OS, runtime, frontend, Dekk, and worker adapters own actual behavior.
 ```
 
-## Why Server/MCP First
+## Least-Overengineered MVP
 
 ```text
-[Agent wants to start or call loop]
+[Provider event]
           |
           v
-[APXM server HTTP MCP]
+[APXM OS connector + trigger sidecar]
           |
           v
-[Server-owned run/session]
+[Dedupe + policy + skill input envelope]
           |
-          +--> [REST/SSE follow from frontend]
+          v
+[POST /v1/skills/{id}/execute]
           |
-          +--> [MCP status/events for agents]
+          v
+[Server-owned execution_id + run events]
           |
-          +--> [cancel/checkpoint/resume]
+          +--> [REST/SSE follow]
           |
-          +--> [rollout/session archive]
+          +--> [checkpoint/resume/cancel]
+          |
+          +--> [rollout/session evidence]
 ```
 
-MCP is the right agent-facing interface because Claude, Codex, and other hosts can all call it. REST/SSE is the right UI and watcher interface. The CLI stays useful, but it should not be the primary control plane for always-on agents because local processes do not naturally provide durable IDs, trigger state, policy, or multi-session supervision.
+For the first real implementation, APXM OS should own external provider listeners, trigger sidecars, dedupe, retry, and event-to-skill routing. APXM server should stay the confined execution gateway and observability surface. MCP remains useful for agents that need to call existing server tools, but it should not become a second trigger engine.
 
-## What Exists Now
+## Capability Surfaces To Verify
 
-- Server events: `/v1/runs`, `/v1/runs/:id/events`, `/events/stream`, `/cancel`.
-- Server tasks: `/v1/tasks`, queue claim, leases, completion.
-- Server checkpoints: durable pause/resume with wake of parked runtime nodes.
-- Server agent registry: `/v1/agents`, `/v1/agents/register`, `/v1/receive`.
-- Server MCP: `apxm_run`, `apxm_dispatch`, `apxm_plan_as_graph`, trace, capability, and skill tools.
-- Runtime autonomous op: plan/action/eval loop, `converse=true`, and `mode=recv` for event polling inside a graph.
-- Runtime workflow spawn: server runtime can execute `WORKFLOW_SPAWN` graphs through the driver bridge.
-- APXM OS trigger sidecars: existing packs can ship `triggers.toml` read by APXM OS.
-- Dekk workflow background mode: local `.apxmw` jobs can return process and session follow handles.
+- If available in the target APXM build: server run events through `/v1/runs`, `/v1/runs/:id/events`, `/events/stream`, and `/cancel`.
+- If available in the target APXM build: task queues through `/v1/tasks`, queue claim, leases, and completion.
+- If available in the target APXM build: checkpoints for pause/resume flows.
+- If available in the target APXM build: agent registry routes such as `/v1/agents`, `/v1/agents/register`, and `/v1/receive`.
+- If available in the target APXM build: MCP tools such as `apxm_run`, `apxm_dispatch`, `apxm_plan_as_graph`, trace, capability, and skill tools.
+- If available in the target APXM build: runtime `AUTONOMOUS`, `mode=recv`, `WORKFLOW_SPAWN`, and `SPAWN_AGENT`.
+- If available in the target APXM OS build: trigger sidecars such as `triggers.toml`.
+- If available in the target Dekk/APXM build: local `.apxmw` background workflow handles.
 
-## What Is Missing
+## Common Gaps
 
 ```text
-[Current building blocks]
+[Current practical path]
           |
           v
-[Missing durable layer]
+[Gaps to report honestly]
           |
-          +--> native server event intake API
-          +--> server trigger registry
-          +--> trigger action dispatcher
-          +--> background agent lifecycle API
-          +--> MCP wrappers for emit/register/start/status/stop
+          +--> APXM OS trigger sidecar loader missing
+          +--> target skill pack has no trigger sidecar
+          +--> target APXM server lacks skill execution or run events
+          +--> no verified worker route for requested role
+          +--> local background workflow has no APXM follow handle
           +--> budget governor shared across loop iterations and spawned workers
 ```
 
-The existing `AUTONOMOUS mode=recv` is useful, but it is not the whole product. It parks inside a graph and polls an endpoint. The durable product layer should let APXM server or APXM OS receive events, match triggers, start or wake loops, follow them, and stop them.
+Do not add APXM server trigger APIs for the MVP just to make the diagram look complete. When APXM OS cannot arm the trigger or the target server cannot execute/follow the skill, report the concrete gap instead of claiming the loop is registered or armed.
 
-## Ideal Background Agent Flow
+## OS-Managed Loop Flow
 
 ```text
-[Register worker profiles]
+[Install skill/workflow pack]
           |
           v
-[Verify spawn/prompt/observe/stop]
+[Load trigger sidecar in APXM OS]
           |
           v
-[Register autonomous loop]
+[Provider event arrives]
           |
           v
-[Start background agent]
+[APXM OS dispatches skill execution]
           |
           v
-[Server returns execution_id + session_id]
+[Server returns execution_id]
           |
-          +--> [event emit / trigger]
-          |
-          +--> [follow events]
+          +--> [follow run events]
           |
           +--> [checkpoint/resume]
           |
           +--> [cancel/stop]
 ```
 
-The front end can author this visually: source, filter, action, eval, feedback, policy, and worker role bindings. The agent-facing skill can then say something compact like: "dekk apxm execute this workflow" or "call APXM MCP to register/start this loop." The heavy context lives in APXM artifacts, not in the prompt.
+The heavy context should live in APXM artifacts and skill packs, not in the prompt. If a frontend authors this flow later, its first output should be skill/workflow artifacts plus APXM OS trigger metadata, not a parallel runtime.
 
-## Minimal Product Contract
+## Draft Loop Spec Shape
 
 ```json
 {
@@ -165,8 +152,9 @@ The front end can author this visually: source, filter, action, eval, feedback, 
     "dedupe_key": "payload.id"
   },
   "action": {
-    "type": "workflow",
-    "target": ".apxm/workflows/project-curate.apxmw",
+    "type": "skill",
+    "target": "discord-project-curate",
+    "transport": "POST /v1/skills/{id}/execute",
     "role_bindings": {
       "planner": { "required_capabilities": ["read", "graph_author"] },
       "executor": { "required_capabilities": ["execute"] },
@@ -191,27 +179,4 @@ The front end can author this visually: source, filter, action, eval, feedback, 
 }
 ```
 
-## Practical MVP
-
-```text
-Phase 1: Plugin contract
-   Add APXM autonomous-agent skill and docs.
-   Teach agents to design loops without assuming a provider.
-
-Phase 2: Workflow packs
-   Store trigger/action/eval/feedback specs beside APXM workflows.
-   Use existing APXM OS sidecars where provider listeners already exist.
-
-Phase 3: Server API
-   Add /v1/events, /v1/triggers, and background agent lifecycle endpoints.
-   Use existing run bus, task queues, checkpoints, agent registry, and cancellation.
-
-Phase 4: MCP tools
-   Expose thin wrappers: apxm_event_emit, apxm_trigger_register,
-   apxm_agent_start, apxm_agent_status, apxm_agent_stop.
-
-Phase 5: Frontend authoring
-   Visual builder writes the loop spec and compiles it to APXM workflow/graph artifacts.
-```
-
-The first implementation should avoid hard-coding Claude or Codex. A Codex planner and Claude executor is a demo policy. The production model is registered worker roles with required capabilities and late binding by APXM.
+For missing APXM OS trigger loading, skill execution, run observation, or worker verification, report the gap instead of claiming the loop is registered or armed. A Codex planner and Claude executor is a demo policy; the production model is registered worker roles with required capabilities and late binding by APXM.
