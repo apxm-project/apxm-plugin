@@ -31,19 +31,20 @@ Use this skill for APXM MCP adapter work. The MCP layer is an interface, not the
 - `apxm_dispatch`: constrained fan-out spec lowered to AIR and executed by APXM.
 - `apxm_plan_as_graph`: natural-language task to validated plan graph, optionally executed.
 - `apxm_trace_fetch`, `apxm_capability_list`, `apxm_skills_list`, `apxm_skill_call`: trace, capability, and skill surfaces.
+- `apxm_workflow_start`, `apxm_workflow_status`, `apxm_workflow_events`, `apxm_workflow_cancel`: native workflow control when the APXM server advertises them.
 
 ## Workflow Launch Pattern
 
-Until a native `apxm_workflow_start` MCP tool exists, launch a `.apxmw` through server/MCP by wrapping it in a tiny AIR graph with one `WORKFLOW_SPAWN` node and calling `apxm_run` with a server-safe `session_id`. Do not include `session_root` in the graph or MCP arguments.
+When the target server lists the native workflow tools, launch a `.apxmw` with `apxm_workflow_start`, then follow with `apxm_workflow_status` and `apxm_workflow_events`, and interrupt with `apxm_workflow_cancel`. Treat the returned `execution_id` as the live control handle and `session_dir` as the offline inspection handle.
 
 ```text
 [Agent]
    |
    v
-[HTTP MCP apxm_run]
+[HTTP MCP apxm_workflow_start]
    |
    v
-[APXM server validates AIR + policy]
+[APXM server validates workflow request + policy]
    |
    v
 [WORKFLOW_SPAWN host bridge]
@@ -52,11 +53,13 @@ Until a native `apxm_workflow_start` MCP tool exists, launch a `.apxmw` through 
 [workflow session dir + child step sessions]
 ```
 
+If the target server does not list `apxm_workflow_start`, use the compatibility path: wrap the `.apxmw` in a tiny AIR graph with one `WORKFLOW_SPAWN` node and call `apxm_run` with a server-safe `session_id`. Do not include `session_root` in the graph or MCP arguments.
+
 Use `dekk apxm workflow execute <workflow.apxmw> --background --session-root <dir> --json` only when a detached local CLI workflow is desired or the server control plane is unavailable.
 
-## Target Tool Surface
+## Workflow Tool Surface
 
-This is a target surface. Only call these tools when the target APXM server or MCP capability inventory confirms they exist.
+Only call these tools when the target APXM server or MCP capability inventory confirms they exist.
 
 - `apxm_workflow_start`: server-owned workflow launch; returns `execution_id`, `session_id`, `session_dir`.
 - `apxm_workflow_status`: summary from run/session records.

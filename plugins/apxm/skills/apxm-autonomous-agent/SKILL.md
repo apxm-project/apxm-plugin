@@ -85,7 +85,7 @@ Use `python3 "$PLUGIN_ROOT/scripts/apxm_doctor.py" --verify-workers <profiles>` 
 
 Confirm these with `apxm_doctor.py`, APXM capability inventory, or the target server before claiming they exist.
 
-- Server/MCP: `apxm_run`, `apxm_dispatch`, `apxm_plan_as_graph`, `apxm_trace_fetch`, capability and skill inventory/call tools.
+- Server/MCP: `apxm_run`, `apxm_dispatch`, `apxm_plan_as_graph`, `apxm_workflow_start/status/events/cancel`, `apxm_trace_fetch`, capability and skill inventory/call tools.
 - Server REST/SSE: `/v1/runs`, `/v1/runs/:id/events`, `/events/stream`, `/cancel`, `/v1/tasks`, `/v1/checkpoints`, `/v1/agents/register`, `/v1/receive`, `/v1/mcp`.
 - Runtime: `AUTONOMOUS` plan/action/eval loops, `mode=recv` event polling, tool-enabled autonomous turns, `WORKFLOW_SPAWN`, `SPAWN_AGENT`, task claiming, checkpoints.
 - APXM OS: external provider listeners, trigger sidecars such as Discord `triggers.toml`, dedupe, retry, and event-to-skill routing.

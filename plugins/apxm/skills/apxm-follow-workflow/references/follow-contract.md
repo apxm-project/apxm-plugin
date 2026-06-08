@@ -27,7 +27,7 @@
 
 ## Server/MCP Control
 
-When an APXM server-managed `execution_id` is available, prefer server control over local process management. Use run detail, event stream, and cancel endpoints through Dekk/watch or MCP wrappers. MCP-started workflow work should still produce session files; use `session_dir` for offline inspection and `execution_id` for live control.
+When native workflow MCP tools are available, start `.apxmw` work through `apxm_workflow_start`, poll `apxm_workflow_status`, page `apxm_workflow_events`, and stop with `apxm_workflow_cancel`. When an APXM server-managed `execution_id` is available through any route, prefer server control over local process management. Use run detail, event stream, and cancel endpoints through Dekk/watch or MCP wrappers. MCP-started workflow work should still produce session files; use `session_dir` for offline inspection and `execution_id` for live control.
 
 ## Live Watch
 

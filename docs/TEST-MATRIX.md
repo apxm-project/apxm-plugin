@@ -109,7 +109,7 @@ Caller coverage:
 
 ```text
 [APXM OS]      trigger sidecar -> POST /v1/skills/{id}/execute -> run events
-[Agent/MCP]    existing APXM MCP tool or skill call -> trace/follow
+[Agent/MCP]    existing APXM MCP tool, native workflow tool, or skill call -> trace/follow
 [Frontend]     writes artifacts/specs -> observes REST/SSE
 [Dekk CLI]     local validate/execute/background -> session/process/rollout follow
 ```

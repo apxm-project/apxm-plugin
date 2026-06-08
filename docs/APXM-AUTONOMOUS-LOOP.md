@@ -86,7 +86,7 @@ For the first real implementation, APXM OS should own external provider listener
 - If available in the target APXM build: task queues through `/v1/tasks`, queue claim, leases, and completion.
 - If available in the target APXM build: checkpoints for pause/resume flows.
 - If available in the target APXM build: agent registry routes such as `/v1/agents`, `/v1/agents/register`, and `/v1/receive`.
-- If available in the target APXM build: MCP tools such as `apxm_run`, `apxm_dispatch`, `apxm_plan_as_graph`, trace, capability, and skill tools.
+- If available in the target APXM build: MCP tools such as `apxm_run`, `apxm_dispatch`, `apxm_plan_as_graph`, native workflow start/status/events/cancel tools, trace, capability, and skill tools.
 - If available in the target APXM build: runtime `AUTONOMOUS`, `mode=recv`, `WORKFLOW_SPAWN`, and `SPAWN_AGENT`.
 - If available in the target APXM OS build: trigger sidecars such as `triggers.toml`.
 - If available in the target Dekk/APXM build: local `.apxmw` background workflow handles.

@@ -271,6 +271,7 @@ apxm_skill_call
 apxm_run
 apxm_trace_fetch
 apxm_workflow_start
+apxm_workflow_status
 apxm_workflow_events
 apxm_workflow_cancel
 ```
