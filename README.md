@@ -14,7 +14,7 @@ This repository is a Codex marketplace root. The installable plugin lives at
 - `apxm-skill-to-workflow`: convert agent skills into APXM workflow packs.
 - `apxm-compile-and-execute`: validate, compile, run, and inspect APXM artifacts.
 - `apxm-verify-workflow`: verify traces, artifacts, and declared evidence.
-- `apxm-follow-workflow`: watch live runs and replay/archive APXM rollouts.
+- `apxm-follow-workflow`: launch/follow background workflows, watch live runs, and replay/archive APXM rollouts.
 - `apxm-headless-hosts`: debug ACP/headless host profiles.
 - `apxm-mcp`: keep APXM MCP wrappers thin over `dekk apxm`.
 

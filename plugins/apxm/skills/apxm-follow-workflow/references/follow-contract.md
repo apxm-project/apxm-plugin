@@ -6,20 +6,20 @@
 [Need progress visibility]
         |
         v
-[Do we have a live thread_id + server?]
+[Choose the strongest available handle]
         |
-   +----+----+
-   |         |
-   v         v
-[yes]      [no]
-   |         |
-   v         v
-[watch]  [rollout/session list]
-   |         |
-   v         v
-[expand] [replay/archive/inspect]
-   |         |
-   +----+----+
+   +----+-----------+-----------+-----------+
+   |                |           |           |
+   v                v           v           v
+[local .apxmw] [thread_id] [rollout id] [session dir]
+   |                |           |           |
+   v                v           v           v
+[background]     [watch]    [replay]    [inspect]
+   |                |           |           |
+   v                v           v           v
+[pid/log/session] [expand]  [archive]   [child sessions]
+   |                |           |           |
+   +----------------+-----------+-----------+
         |
         v
 [Report traceable status]
@@ -35,7 +35,11 @@
 
 ## Session Inspection
 
-`dekk apxm session list` and `dekk apxm session inspect <session-id-or-path>` read execution session output emitted by `apxm run`, `apxm execute`, and `apxm workflow run`. Workflow roots should be listed as first-class sessions with `manifest.json`, `live.json`, `results.json`, and `metrics.json`; child step sessions carry graph-level node traces and outputs. Use sessions when no rollout exists or when the user wants a local/offline handle.
+`dekk apxm session list` and `dekk apxm session inspect <session-id-or-path>` read execution session output emitted by `apxm run`, `apxm execute`, and `apxm workflow run`. Workflow roots should be listed as first-class sessions with `manifest.json`, `live.json`, `trace.ndjson`, `results.json`, and `metrics.json`; child step sessions carry graph-level node traces and outputs. Use sessions when no rollout exists or when the user wants a local/offline handle.
+
+## Background Workflow
+
+`dekk apxm workflow execute <workflow.apxmw> --background --session-root <dir> --json` starts a detached APXM child process and returns follow handles. The JSON should include `pid`, `session_dir`, `log_file`, and `command`. The workflow-root session should immediately contain `manifest.json`, `live.json`, `trace.ndjson`, and `background.json`; final `results.json` and `metrics.json` appear when the child completes. Use `dekk apxm process list` for process visibility and `dekk apxm session inspect <workflow-session-dir> --json` for state.
 
 ## Workflow File Lifecycle
 
@@ -63,10 +67,31 @@
       +--> [inspect child step sessions]
 ```
 
+## Background Lifecycle
+
+```text
+[workflow execute --background --session-root ...]
+      |
+      v
+[APXM returns pid + session_dir + log_file]
+      |
+      +--> [process list shows running job]
+      |
+      +--> [session inspect reads live.json]
+      |
+      +--> [trace.ndjson records lifecycle/steps]
+      |
+      +--> [background.log captures child stdout/stderr]
+      |
+      v
+[results.json + metrics.json when complete]
+```
+
 ## Failure Modes
 
 - No APXM binary: run APXM setup/install.
 - No `apxm-server`: use offline rollout commands or start server.
 - No rollout found: inspect the workflow-root session output, then run through a rollout-recording surface if regulatory replay is required.
+- Background workflow missing `background.json`: APXM is too old or the workflow was launched manually with shell backgrounding; rerun through `workflow execute --background`.
 - No Dekk `workflow` group: call `apxm workflow` directly or update `.dekk.toml`.
 - No Dekk `session` group: call `apxm session` directly or update `.dekk.toml`.

@@ -73,6 +73,7 @@ This plugin is the distribution layer for APXM orchestration skills. It teaches 
 - Schedule and supervise agents.
 - Enforce budget, timeout, cancellation, and write policy.
 - Persist traces and artifacts.
+- Launch long workflows in background child processes with follow handles.
 - Stream live run progress and replay archived rollouts.
 
 ## Worker Model
@@ -188,18 +189,18 @@ The original skill stays as the trigger layer. APXM becomes the graph execution 
       v
 [thread_id/session emitted]
       |
-      +-------------------+
-      |                   |
-      v                   v
-[live server]       [offline rollout]
-      |                   |
-      v                   v
-[apxm watch]        [rollout replay/archive]
-      |                   |
-      +---------+---------+
-                |
-                v
-      [traceable progress view]
+      +----------------+----------------+
+      |                |                |
+      v                v                v
+[background job] [live server] [offline/session]
+      |                |                |
+      v                v                v
+[pid/log/session] [apxm watch] [replay/archive/inspect]
+      |                |                |
+      +----------------+----------------+
+                       |
+                       v
+             [traceable progress view]
 ```
 
-Live follow mode uses `dekk apxm watch <thread_id>`. Offline follow mode uses `dekk apxm rollout list`, `dekk apxm rollout replay <thread_id>`, and `dekk apxm rollout archive <thread_id>`.
+Background workflow mode uses `dekk apxm workflow execute <workflow.apxmw> --background --session-root <dir> --json` and follows `pid`, `session_dir`, `log_file`, `background.json`, and workflow-root `trace.ndjson`. Live follow mode uses `dekk apxm watch <thread_id>`. Offline follow mode uses `dekk apxm rollout list`, `dekk apxm rollout replay <thread_id>`, and `dekk apxm rollout archive <thread_id>`.

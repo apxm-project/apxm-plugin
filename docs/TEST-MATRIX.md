@@ -77,8 +77,11 @@ dekk apxm rollout archive <thread_id> --output /tmp/apxm-rollout-<thread_id>.tar
 dekk apxm workflow validate <workflow.apxmw>
 dekk apxm workflow analyze <workflow.apxmw>
 dekk apxm workflow execute <workflow.apxmw> --session-root <dir> --json
+dekk apxm workflow execute <workflow.apxmw> --background --session-root <dir> --json
 ```
 
 Expected: live follow mode uses `watch` against a running server and thread id. Session follow mode inspects emitted session directories. Offline rollout mode uses rollout replay/archive after a rollout exists.
 
-For `.apxmw` execution, the returned `session_dir` must itself contain `manifest.json`, `live.json`, `results.json`, and `metrics.json`; `dekk apxm session list --session-root <dir>` should list the workflow root, and `session inspect <workflow-session-dir> --json` should expose `results.step_results` with child step session paths.
+For foreground `.apxmw` execution, the returned `session_dir` must itself contain `manifest.json`, `live.json`, `trace.ndjson`, `results.json`, and `metrics.json`; `dekk apxm session list --session-root <dir>` should list the workflow root, and `session inspect <workflow-session-dir> --json` should expose `results.step_results` with child step session paths.
+
+For background `.apxmw` execution, the returned JSON must include `pid`, `session_dir`, `log_file`, and `command`; the workflow-root session should immediately contain `manifest.json`, `live.json`, `trace.ndjson`, and `background.json`, then `results.json` and `metrics.json` after completion. `dekk apxm process list` should expose the job while it is running.

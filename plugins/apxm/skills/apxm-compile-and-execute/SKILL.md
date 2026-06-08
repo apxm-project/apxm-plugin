@@ -38,9 +38,12 @@ dekk apxm execute <workflow.air>
 dekk apxm workflow validate <workflow.apxmw>
 dekk apxm workflow analyze <workflow.apxmw>
 dekk apxm workflow execute <workflow.apxmw> --json
+dekk apxm workflow execute <workflow.apxmw> --background --session-root <dir> --json
 ```
 
 When calling the APXM binary directly instead of Dekk, the workflow execution subcommand may be `apxm workflow run <workflow.apxmw> --json`.
+
+Use background workflow execution for long-running orchestration when the user needs to keep working while APXM records follow handles. The response should include `pid`, `session_dir`, `log_file`, and `command`.
 
 Store generated artifacts under `.apxm/` unless the user or repo has a clearer convention.
 
