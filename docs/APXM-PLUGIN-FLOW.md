@@ -42,7 +42,10 @@ This plugin is the distribution layer for APXM orchestration skills. It teaches 
                                       [Workers execute/propose]
                                                     |
                                                     v
-                                      [APXM verifies artifacts]
+[APXM verifies artifacts]
+                                                    |
+                                                    v
+                                      [Follow via watch/rollout]
                                                     |
                                                     v
                                       [Traceable final result]
@@ -64,6 +67,7 @@ This plugin is the distribution layer for APXM orchestration skills. It teaches 
 - Schedule and supervise agents.
 - Enforce budget, timeout, cancellation, and write policy.
 - Persist traces and artifacts.
+- Stream live run progress and replay archived rollouts.
 
 ## Worker Model
 
@@ -115,3 +119,27 @@ Any worker-authored graph remains untrusted until APXM validates, compiles, and 
 ```
 
 The original skill stays as the trigger layer. APXM becomes the graph execution layer.
+
+## Follow Workflow Flow
+
+```text
+[APXM workflow/run starts]
+      |
+      v
+[thread_id/session emitted]
+      |
+      +-------------------+
+      |                   |
+      v                   v
+[live server]       [offline rollout]
+      |                   |
+      v                   v
+[apxm watch]        [rollout replay/archive]
+      |                   |
+      +---------+---------+
+                |
+                v
+      [traceable progress view]
+```
+
+Live follow mode uses `dekk apxm watch <thread_id>`. Offline follow mode uses `dekk apxm rollout list`, `dekk apxm rollout replay <thread_id>`, and `dekk apxm rollout archive <thread_id>`.

@@ -48,3 +48,5 @@ context_paths = "string[]"
 - The converted workflow should call other APXM skills only through explicit workflow nodes.
 - Keep prompts brief and artifact-oriented.
 - Record anything that stayed manual in `unsupported_features`.
+- Use canonical `skill.air` for executable graph artifacts; keep PlanGraph JSON as proposal/interchange data until lowered.
+- Use `workflow.apxmw` for multi-step workflow files that need `apxm workflow validate|analyze|run`.

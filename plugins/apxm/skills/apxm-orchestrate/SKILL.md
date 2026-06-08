@@ -17,19 +17,25 @@ python3 "$PLUGIN_ROOT/scripts/apxm_doctor.py"
 ```
 
 3. If preflight returns `setup_required`, stop and return the setup gap. Do not pretend orchestration ran.
-4. If an APXM graph already exists, prefer:
+4. Before fan-out execution, verify the intended workers:
 
 ```bash
-dekk apxm execute <workflow.air.json>
+python3 "$PLUGIN_ROOT/scripts/apxm_doctor.py" --verify-workers codex,claude
 ```
 
-5. For a natural-language task, prefer the native orchestration surface when present:
+5. If an executable canonical APXM graph already exists, prefer:
+
+```bash
+dekk apxm execute <workflow.air>
+```
+
+6. For a natural-language task, prefer the native orchestration surface when present:
 
 ```bash
 dekk apxm orchestrate --task "<brief objective>" --policy <policy.json>
 ```
 
-If that command is not available yet, produce a compact APXM request under `.apxm/requests/` and hand it to the compile/execute path. The request should contain only objective, constraints, desired artifacts, worker requirements, budget, and verification requirements.
+If that command is not available yet, produce a compact APXM request under `.apxm/requests/` and hand it to the compile/execute path. The request should contain only objective, constraints, desired artifacts, worker requirements, budget, and verification requirements. Do not pass PlanGraph JSON directly to `dekk apxm validate`; current APXM validation expects canonical `.air`.
 
 ## Delegation Rules
 

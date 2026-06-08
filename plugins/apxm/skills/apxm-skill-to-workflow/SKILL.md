@@ -31,7 +31,8 @@ Create these files in the target directory:
 
 - `skill.toml`: source skill metadata, trigger, required inputs, and policy defaults.
 - `workflow.py`: APXM Python frontend workflow or graph builder.
-- `skill.air.json`: compiled or hand-authored APXM graph target when possible.
+- `skill.air`: compiled or hand-authored canonical APXM graph target when possible.
+- `workflow.apxmw`: APXM multi-step workflow file when the source skill maps better to workflow steps than a single graph.
 - `conversion_report.json`: decisions, unsupported features, validation status, and next action.
 
 ## Conversion Rules

@@ -17,7 +17,15 @@ python3 "$PLUGIN_ROOT/scripts/apxm_doctor.py"
 ```
 
 3. Treat the doctor snapshot as the source of truth for the current environment.
-4. If available, inspect APXM worker state:
+4. Before execution, request explicit spawn verification for the intended workers:
+
+```bash
+python3 "$PLUGIN_ROOT/scripts/apxm_doctor.py" --verify-workers codex,claude
+```
+
+Use `--verify-workers all-candidates` only when the user accepts adapter startup/network cost.
+
+5. If available, inspect APXM worker state:
 
 ```bash
 dekk apxm agent list --json

@@ -16,7 +16,13 @@ Use this skill to debug APXM host readiness. Do not equate an installed CLI with
 python3 "$PLUGIN_ROOT/scripts/apxm_doctor.py"
 ```
 
-3. Inspect APXM host state when available:
+3. Verify specific candidate routes before using them:
+
+```bash
+python3 "$PLUGIN_ROOT/scripts/apxm_doctor.py" --verify-workers codex,claude
+```
+
+4. Inspect APXM host state when available:
 
 ```bash
 dekk apxm agent templates --json

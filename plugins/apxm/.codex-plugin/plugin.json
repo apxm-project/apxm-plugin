@@ -1,7 +1,7 @@
 {
   "name": "apxm",
-  "version": "0.1.0",
-  "description": "APXM orchestration workflows for Codex: councils, verified workers, graph execution, skill-to-workflow conversion, and trace verification.",
+  "version": "0.1.1",
+  "description": "APXM orchestration workflows for Codex: councils, verified workers, graph execution, skill-to-workflow conversion, trace verification, and workflow following.",
   "author": {
     "name": "APXM Project",
     "url": "https://github.com/apxm-project"
@@ -16,13 +16,14 @@
     "workers",
     "skills",
     "workflow",
-    "graph"
+    "graph",
+    "follow-workflow"
   ],
   "skills": "./skills/",
   "interface": {
     "displayName": "APXM",
     "shortDescription": "Graph-native orchestration and council workflows",
-    "longDescription": "APXM packages reusable Codex skills for selecting verified workers, running traceable multi-perspective councils, converting skills into APXM workflows, executing APXM graphs through Dekk, and verifying traces.",
+    "longDescription": "APXM packages reusable Codex skills for selecting verified workers, running traceable multi-perspective councils, converting skills into APXM workflows, executing APXM graphs through Dekk, following live/offline workflow progress, and verifying traces.",
     "developerName": "APXM Project",
     "category": "Productivity",
     "capabilities": [
@@ -37,7 +38,8 @@
     "defaultPrompt": [
       "Run an APXM Council on this decision.",
       "Use APXM to orchestrate this task across agents.",
-      "Ask an APXM worker to propose a graph."
+      "Ask an APXM worker to propose a graph.",
+      "Follow this APXM workflow and replay its rollout."
     ]
   }
 }

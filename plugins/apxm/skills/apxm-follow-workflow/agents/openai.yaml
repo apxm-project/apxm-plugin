@@ -1,0 +1,6 @@
+interface:
+  display_name: "APXM Follow Workflow"
+  short_description: "Watch and replay APXM workflow progress"
+  default_prompt: "Use $apxm-follow-workflow to follow this APXM workflow or replay its rollout."
+policy:
+  allow_implicit_invocation: true

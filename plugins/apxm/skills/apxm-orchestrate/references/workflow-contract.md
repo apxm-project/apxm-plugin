@@ -16,7 +16,7 @@ APXM owns execution. Skills only prepare intent, call APXM/Dekk, and report trac
     +--> [setup_required] --> [return missing APXM/runtime/worker gap]
     |
     v
-[Create compact request or use existing graph]
+[Create compact request or use existing canonical graph]
     |
     v
 [APXM validates policy + worker admission]
@@ -66,4 +66,5 @@ Use this shape when no native `dekk apxm orchestrate` surface is available yet:
 
 - A CLI on `PATH` is only a candidate. A verified worker is one APXM can spawn, prompt, supervise, and stop.
 - Child graphs proposed by workers are untrusted until APXM validates them.
+- PlanGraph JSON is a proposal/interchange format. Lower it to canonical `.air` before `dekk apxm validate`, `analyze`, `explain`, `compile`, or `execute`.
 - The final answer must distinguish APXM-verified work from locally inspected but unverified artifacts.

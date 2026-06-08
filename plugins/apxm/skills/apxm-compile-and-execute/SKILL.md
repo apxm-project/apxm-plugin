@@ -1,6 +1,6 @@
 ---
 name: apxm-compile-and-execute
-description: Use when validating, compiling, executing, running, analyzing, or explaining APXM workflow artifacts such as .air graphs, PlanGraph JSON, Python frontend workflows, and compiled APXM objects.
+description: Use when validating, compiling, executing, running, analyzing, or explaining APXM workflow artifacts such as canonical .air graphs, PlanGraph JSON proposals, Python frontend workflows, .apxmw workflow files, and compiled APXM objects.
 ---
 
 # APXM Compile And Execute
@@ -18,8 +18,10 @@ Use this skill as the direct APXM/Dekk execution path. It should be boring and t
 
 3. Identify the artifact type:
 
-- `.air.json` or PlanGraph JSON: validate, analyze, then execute or compile.
+- Canonical `.air`: validate, analyze, then execute or compile.
+- PlanGraph JSON: treat as a proposal and lower/compile to canonical `.air` before APXM validate/analyze/execute.
 - Python frontend workflow: compile to APXM graph first.
+- `.apxmw`: use `dekk apxm workflow validate|analyze|run` when available.
 - `.apxmobj`: run directly.
 
 ## Commands
@@ -27,12 +29,15 @@ Use this skill as the direct APXM/Dekk execution path. It should be boring and t
 Use the available command surface that matches the artifact:
 
 ```bash
-dekk apxm validate <workflow.air.json>
-dekk apxm analyze <workflow.air.json>
-dekk apxm explain <workflow.air.json>
-dekk apxm compile <workflow.air.json> -o <workflow.apxmobj>
+dekk apxm validate <workflow.air>
+dekk apxm analyze <workflow.air>
+dekk apxm explain <workflow.air>
+dekk apxm compile <workflow.air> -o <workflow.apxmobj>
 dekk apxm run <workflow.apxmobj>
-dekk apxm execute <workflow.air.json>
+dekk apxm execute <workflow.air>
+dekk apxm workflow validate <workflow.apxmw>
+dekk apxm workflow analyze <workflow.apxmw>
+dekk apxm workflow execute <workflow.apxmw> --json
 ```
 
 Store generated artifacts under `.apxm/` unless the user or repo has a clearer convention.
@@ -40,6 +45,7 @@ Store generated artifacts under `.apxm/` unless the user or repo has a clearer c
 ## Rules
 
 - Do not skip validation before execution.
+- Do not pass structured PlanGraph JSON examples directly to `dekk apxm validate`; JSON is reserved for structured data outputs unless a converter has lowered it.
 - If validation fails, report the exact schema or policy gap and stop.
 - If compile succeeds but execution fails, preserve both compile artifact and runtime error.
 - Surface trace IDs, worker IDs, budgets, warnings, and generated files.
