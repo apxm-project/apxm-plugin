@@ -97,6 +97,23 @@ dekk apxm process list --json
 
 Expected: loop design starts from APXM OS trigger sidecars, existing APXM server skill execution, verified workers, and concrete follow/stop handles. The plugin should report missing APXM OS trigger loading, missing skill execution, missing run observation, missing worker verification, or missing background workflow handles instead of claiming that the trigger was armed.
 
+Native MCP orchestration smoke:
+
+```text
+tools/list includes apxm_orchestrate_start
+tools/list includes apxm_workflow_status/events/cancel
+apxm_orchestrate_start deterministic workers -> execution_id
+apxm_workflow_events({execution_id, since: 0}) -> orchestrator_sleep
+page events with since = next_seq
+apxm_workflow_events -> orchestrator_wake or terminal event
+apxm_workflow_status -> succeeded or failed
+```
+
+Expected: the orchestrator does not manually prompt workers after start. A
+parked or long-running orchestration can be interrupted with
+`apxm_workflow_cancel`, and the final status reports failure with the
+`apxm_workflow_cancel` reason.
+
 Design-only checks must not spawn-test every candidate worker. Use explicit spawn verification only when execution policy must bind workers:
 
 ```bash

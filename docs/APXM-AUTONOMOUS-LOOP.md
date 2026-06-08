@@ -142,7 +142,7 @@ The heavy context should live in APXM artifacts and skill packs, not in the prom
    |
    +--> [APXM OS] -------> [provider event -> skill execute]
    |
-   +--> [Agent via MCP] -> [existing APXM tool/skill call]
+   +--> [Agent via MCP] -> [apxm_orchestrate_start or tool/skill call]
    |
    +--> [Frontend] -----> [author artifacts, observe run]
    |
@@ -163,6 +163,11 @@ The heavy context should live in APXM artifacts and skill packs, not in the prom
 ```
 
 Plans should split into roles with compact worker briefs: objective, input refs, constraints, expected artifact, evidence/check command, budget, timeout, and stop conditions. APXM should validate worker-authored graphs before execution.
+
+For a bounded agent-initiated pass, the agent should call
+`apxm_orchestrate_start` once, store the returned `execution_id`, then sleep.
+APXM emits `orchestrator_sleep` after accepting ownership and
+`orchestrator_wake` before terminal workflow completion or cancellation.
 
 ## Interruption Flow
 

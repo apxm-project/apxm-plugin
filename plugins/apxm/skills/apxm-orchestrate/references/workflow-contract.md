@@ -19,6 +19,14 @@ APXM owns execution. Skills only prepare intent, call APXM/Dekk, and report trac
 [Create compact request or use existing canonical graph]
     |
     v
+[Native MCP available?]
+    |
+    +--> [yes] -> [apxm_orchestrate_start once]
+    |                 |
+    |                 v
+    |          [sleep until workflow events/status wake]
+    |
+    v
 [APXM validates policy + worker admission]
     |
     +--> [rejected] --> [return rejection + fixable fields]
@@ -37,6 +45,52 @@ APXM owns execution. Skills only prepare intent, call APXM/Dekk, and report trac
     |
     v
 [Return trace ID, artifacts, evidence, warnings]
+```
+
+## Native MCP Contract
+
+When the target APXM HTTP MCP server advertises `apxm_orchestrate_start`, prefer
+it for task-to-worker orchestration:
+
+```json
+{
+  "task": "brief objective",
+  "context": "optional repo/product/run context",
+  "event": "optional triggering event",
+  "trigger": "optional trigger rule or reason",
+  "workspace": { "mode": "session|shared|git_worktree" },
+  "workers": [
+    { "id": "planner", "role": "plan", "profile": "any-verified-profile" },
+    { "id": "executor", "role": "execute", "depends_on": ["planner"] }
+  ],
+  "admit_capabilities": ["SPAWN_AGENT"]
+}
+```
+
+The response returns `execution_id`, `session_id`, `session_dir`,
+`workflow_path`, `bundle_dir`, `plan`, `control`, and `orchestration`. Store
+those handles. The orchestrator agent should then go idle; APXM owns worker
+spawning, prompts, fan-in, gate/eval, feedback, session output, and events.
+
+Follow by paging:
+
+```json
+apxm_workflow_events({ "execution_id": "...", "since": 0, "limit": 100 })
+```
+
+Advance `since` to each response's `next_seq`. `done: true` only means the
+current event page is exhausted; it is not workflow completion. Wake when an
+event has `payload.kind` equal to `orchestrator_wake`, `execute_complete`,
+`error`, or `turn_aborted`, then confirm with:
+
+```json
+apxm_workflow_status({ "execution_id": "..." })
+```
+
+Stop only through:
+
+```json
+apxm_workflow_cancel({ "execution_id": "..." })
 ```
 
 ## Minimal Request Envelope

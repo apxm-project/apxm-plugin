@@ -94,7 +94,11 @@ This plugin is the distribution layer for APXM orchestration skills. It teaches 
 [Agent uses MCP tools]             [Use Dekk/APXM CLI]
     |                                     |
     v                                     v
-[Server owns run/session]          [CLI returns pid/session/log]
+[apxm_orchestrate_start or]        [CLI returns pid/session/log]
+[workflow/skill tools]                    |
+    |
+    v
+[Server owns run/session]
     |                                     |
     +----------------+--------------------+
                      |
@@ -278,4 +282,16 @@ See `docs/APXM-AUTONOMOUS-LOOP.md` and the `apxm-autonomous-agent` skill for the
              [traceable progress view]
 ```
 
-Server/MCP workflow mode should use native `apxm_workflow_start/status/events/cancel` when the target server lists those MCP tools, returning `execution_id`, `session_id`, and `session_dir` so APXM can control many concurrent sessions through run events and cancellation. Background workflow mode uses `dekk apxm workflow execute <workflow.apxmw> --background --session-root <dir> --json` and follows `pid`, `session_dir`, `log_file`, `background.json`, and workflow-root `trace.ndjson`. Live follow mode uses `dekk apxm watch <thread_id>`. Offline follow mode uses `dekk apxm rollout list`, `dekk apxm rollout replay <thread_id>`, and `dekk apxm rollout archive <thread_id>`.
+Server/MCP orchestration mode should use native `apxm_orchestrate_start` when
+the target server lists it: start once, keep `execution_id`, then sleep until
+`apxm_workflow_events` returns `orchestrator_wake` or a terminal event and
+confirm with `apxm_workflow_status`. Server/MCP workflow mode should use native
+`apxm_workflow_start/status/events/cancel` when the target server lists those
+MCP tools, returning `execution_id`, `session_id`, and `session_dir` so APXM can
+control many concurrent sessions through run events and cancellation. Background
+workflow mode uses `dekk apxm workflow execute <workflow.apxmw> --background
+--session-root <dir> --json` and follows `pid`, `session_dir`, `log_file`,
+`background.json`, and workflow-root `trace.ndjson`. Live follow mode uses
+`dekk apxm watch <thread_id>`. Offline follow mode uses `dekk apxm rollout
+list`, `dekk apxm rollout replay <thread_id>`, and `dekk apxm rollout archive
+<thread_id>`.

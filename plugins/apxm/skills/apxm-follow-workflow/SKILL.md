@@ -36,11 +36,17 @@ If `apxm` is not installed globally and Dekk needs the APXM worktree, set `APXM_
 5. For live workflow/run progress, use:
 
 ```text
+apxm_orchestrate_start -> execution_id + workflow_path + bundle_dir
 apxm_workflow_start   -> execution_id + session_dir
 apxm_workflow_status  -> current status/result/error
 apxm_workflow_events  -> retained event page with next_seq
 apxm_workflow_cancel  -> cancel in-flight execution_id
 ```
+
+If the run was started by `apxm_orchestrate_start`, do not restart the generated
+workflow. Use the returned `execution_id` with `apxm_workflow_events`, advance
+`since` to `next_seq`, wake on `orchestrator_wake` or terminal events, and
+confirm completion with `apxm_workflow_status`.
 
 6. For live REST/SSE workflow/run progress, use:
 

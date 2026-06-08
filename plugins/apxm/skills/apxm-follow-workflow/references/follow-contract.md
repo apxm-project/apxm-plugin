@@ -27,7 +27,17 @@
 
 ## Server/MCP Control
 
+When native orchestration MCP is available, `apxm_orchestrate_start` returns the
+server-owned `execution_id`, generated `workflow_path`, `bundle_dir`, and
+workflow control handles. Follow that run with `apxm_workflow_status`, page
+`apxm_workflow_events`, and stop with `apxm_workflow_cancel`; do not relaunch the
+generated workflow.
+
 When native workflow MCP tools are available, start `.apxmw` work through `apxm_workflow_start`, poll `apxm_workflow_status`, page `apxm_workflow_events`, and stop with `apxm_workflow_cancel`. When an APXM server-managed `execution_id` is available through any route, prefer server control over local process management. Use run detail, event stream, and cancel endpoints through Dekk/watch or MCP wrappers. MCP-started workflow work should still produce session files; use `session_dir` for offline inspection and `execution_id` for live control.
+
+For orchestration runs, wake on `payload.kind = "orchestrator_wake"` or terminal
+`execute_complete`, `error`, or `turn_aborted` events. Treat `done: true` on an
+events page as "page exhausted", not "workflow done"; status is authoritative.
 
 ## Live Watch
 

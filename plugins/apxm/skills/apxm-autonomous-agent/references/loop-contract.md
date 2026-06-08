@@ -35,7 +35,7 @@ The plugin only teaches agents how to request this. APXM server, APXM OS, Dekk, 
 | Caller | Calls | Purpose | Follow/stop surface |
 |---|---|---|---|
 | APXM OS provider connector | `POST /v1/skills/{id}/execute` | Event-triggered loop from Discord, GitHub, cron, files, queues, or webhooks | `/v1/runs/{execution_id}/events`, checkpoint resume, run cancel |
-| Agent host through MCP | Existing APXM MCP tools such as `apxm_skill_call`, `apxm_run`, `apxm_trace_fetch` | Agent-initiated compile/run/follow when a human or parent agent asks | MCP result plus server run events when available |
+| Agent host through MCP | Existing APXM MCP tools such as `apxm_orchestrate_start`, `apxm_skill_call`, `apxm_run`, `apxm_trace_fetch` | Agent-initiated bounded orchestration, compile/run/follow when a human or parent agent asks | MCP result plus server run events when available |
 | Dekk/APXM CLI | `dekk apxm workflow ...`, `dekk apxm session ...`, `dekk apxm rollout ...` | Local fallback, developer testing, detached workflow follow handles | session directory, process list, rollout/session inspect |
 | Frontend | REST/SSE or generated workflow/trigger artifacts | Author specs and observe runs | server events, checkpoints, cancellation |
 | Worker agent | APXM worker prompt/spawn route selected by policy | Execute one assigned role, propose a graph, review, or verify | APXM runtime/process-table events, worker artifact |
@@ -228,6 +228,36 @@ Only `needs_more` may automatically loop, and only while budget, timeout, and it
 
 The loop should be inspectable through APXM server run events or APXM workflow session output. A background process without an APXM run ID or APXM OS trigger record is only a local process, not a governed autonomous loop.
 
+## Native Orchestration Pass
+
+Use `apxm_orchestrate_start` when an agent has one bounded event/task and wants
+APXM to split it across workers:
+
+```text
+[orchestrator agent]
+        |
+        v
+[apxm_orchestrate_start once]
+        |
+        v
+[orchestrator_sleep event]
+        |
+        v
+[APXM workflow owns worker spawn + gate/eval + feedback]
+        |
+        v
+[orchestrator_wake or terminal event]
+        |
+        v
+[status confirms succeeded/failed]
+```
+
+The orchestrator should store `execution_id`, `workflow_path`, `bundle_dir`, and
+`session_dir`, then page `apxm_workflow_events` with `since = next_seq`. It
+should not manually prompt workers after start. Real ACP workers require explicit
+`admit_capabilities: ["SPAWN_AGENT"]`; provider names are policy bindings, not
+requirements.
+
 ## Interruptions
 
 Interruptions are normal control-plane events, not exceptional prompt text.
@@ -274,6 +304,7 @@ apxm_workflow_start
 apxm_workflow_status
 apxm_workflow_events
 apxm_workflow_cancel
+apxm_orchestrate_start
 ```
 
 ## Anti-Patterns

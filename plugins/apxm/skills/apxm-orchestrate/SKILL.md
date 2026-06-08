@@ -27,13 +27,29 @@ python3 "$PLUGIN_ROOT/scripts/apxm_doctor.py" --verify-workers <worker-a>,<worke
 
 Use `--policy <policy.json>` when a policy declares `worker_roles`, `preferred_workers`, or `allowed_workers`; the doctor will report role routes and missing capabilities.
 
-5. If an executable canonical APXM graph already exists, prefer:
+5. If the target APXM HTTP MCP inventory lists `apxm_orchestrate_start`, use
+   the native server-owned path for natural-language task fan-out:
+
+```text
+apxm_orchestrate_start -> execution_id + workflow_path + bundle_dir
+apxm_workflow_events   -> page retained events with since/next_seq
+apxm_workflow_status   -> confirm running/succeeded/failed
+apxm_workflow_cancel   -> stop by execution_id
+```
+
+Call `apxm_orchestrate_start` once with a bounded `workers` DAG, optional
+`context`, `event`, `trigger`, and an explicit `workspace` policy. For real ACP
+workers, include `admit_capabilities: ["SPAWN_AGENT"]`. After start, do not
+manually prompt workers; APXM owns worker spawn, fan-in, gate/eval, feedback,
+events, and cancellation.
+
+6. If an executable canonical APXM graph already exists, prefer:
 
 ```bash
 dekk apxm execute <workflow.air>
 ```
 
-6. For a natural-language task, create a compact APXM request under `.apxm/requests/` and hand it to the compile/execute path. The request should contain only objective, constraints, desired artifacts, worker requirements, budget, and verification requirements. Do not pass PlanGraph JSON directly to `dekk apxm validate`; current APXM validation expects canonical `.air`.
+7. If native orchestration is not advertised, create a compact APXM request under `.apxm/requests/` and hand it to the compile/execute path. The request should contain only objective, constraints, desired artifacts, worker requirements, budget, and verification requirements. Do not pass PlanGraph JSON directly to `dekk apxm validate`; current APXM validation expects canonical `.air`.
 
 If a native orchestration command is present in `dekk apxm --help`, it may replace the request handoff:
 
