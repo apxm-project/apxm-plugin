@@ -8,22 +8,26 @@
         v
 [Choose the strongest available handle]
         |
-   +----+-----------+-----------+-----------+
-   |                |           |           |
-   v                v           v           v
-[local .apxmw] [thread_id] [rollout id] [session dir]
-   |                |           |           |
-   v                v           v           v
-[background]     [watch]    [replay]    [inspect]
-   |                |           |           |
-   v                v           v           v
-[pid/log/session] [expand]  [archive]   [child sessions]
-   |                |           |           |
-   +----------------+-----------+-----------+
+   +-------------+-----------+-----------+-----------+
+   |             |           |           |           |
+   v             v           v           v           v
+[server/MCP] [local .apxmw] [thread_id] [rollout id] [session dir]
+   |             |           |           |           |
+   v             v           v           v           v
+[run id]     [background] [watch]    [replay]    [inspect]
+   |             |           |           |           |
+   v             v           v           v           v
+[cancel/events] [pid/log] [expand]  [archive]   [child sessions]
+   |             |           |           |           |
+   +-------------+-----------+-----------+-----------+
         |
         v
 [Report traceable status]
 ```
+
+## Server/MCP Control
+
+When an APXM server-managed `execution_id` is available, prefer server control over local process management. Use run detail, event stream, and cancel endpoints through Dekk/watch or MCP wrappers. MCP-started workflow work should still produce session files; use `session_dir` for offline inspection and `execution_id` for live control.
 
 ## Live Watch
 

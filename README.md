@@ -16,12 +16,12 @@ This repository is a Codex marketplace root. The installable plugin lives at
 - `apxm-verify-workflow`: verify traces, artifacts, and declared evidence.
 - `apxm-follow-workflow`: launch/follow background workflows, watch live runs, and replay/archive APXM rollouts.
 - `apxm-headless-hosts`: debug ACP/headless host profiles.
-- `apxm-mcp`: keep APXM MCP wrappers thin over `dekk apxm`.
+- `apxm-mcp`: prefer APXM server/MCP for controllable sessions, with Dekk as fallback.
 
 ## Boundary
 
 The plugin is not the APXM runtime. It teaches agents how to invoke APXM
-correctly. APXM/Dekk remains the execution authority.
+correctly. APXM server/Dekk remains the execution authority.
 
 The plugin does not assume Claude or Codex are installed. Execute-capable skills
 start from preflight, map workflow roles to capabilities, and select from

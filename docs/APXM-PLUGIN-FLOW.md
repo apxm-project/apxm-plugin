@@ -73,8 +73,36 @@ This plugin is the distribution layer for APXM orchestration skills. It teaches 
 - Schedule and supervise agents.
 - Enforce budget, timeout, cancellation, and write policy.
 - Persist traces and artifacts.
-- Launch long workflows in background child processes with follow handles.
+- Own server-side run/session IDs, event streams, cancellation, and session roots.
+- Launch long local workflows in background child processes with follow handles when the server control plane is unavailable or not requested.
 - Stream live run progress and replay archived rollouts.
+
+## Control Plane Flow
+
+```text
+[Agent or frontend wants APXM execution]
+            |
+            v
+[Discover APXM control surface]
+            |
+    +-------+-----------------------------+
+    |                                     |
+    v                                     v
+[APXM server HTTP/MCP available]   [No server control plane]
+    |                                     |
+    v                                     v
+[Agent uses MCP tools]             [Use Dekk/APXM CLI]
+    |                                     |
+    v                                     v
+[Server owns run/session]          [CLI returns pid/session/log]
+    |                                     |
+    +----------------+--------------------+
+                     |
+                     v
+      [Follow via events, rollout, or session files]
+```
+
+The preferred agent path is MCP over APXM server because the server can own many concurrent sessions with stable IDs, retained events, cancellation, rollout records, and server-controlled session roots. Dekk and the direct CLI remain important local fallbacks and developer tools, especially for detached `.apxmw` background runs.
 
 ## Worker Model
 
@@ -187,20 +215,20 @@ The original skill stays as the trigger layer. APXM becomes the graph execution 
 [APXM workflow/run starts]
       |
       v
-[thread_id/session emitted]
+[execution_id/thread_id/session emitted]
       |
-      +----------------+----------------+
-      |                |                |
-      v                v                v
-[background job] [live server] [offline/session]
-      |                |                |
-      v                v                v
-[pid/log/session] [apxm watch] [replay/archive/inspect]
-      |                |                |
-      +----------------+----------------+
+      +----------------+----------------+----------------+
+      |                |                |                |
+      v                v                v                v
+[server/MCP]   [background job] [live server] [offline/session]
+      |                |                |                |
+      v                v                v                v
+[events/cancel] [pid/log/session] [apxm watch] [replay/archive/inspect]
+      |                |                |                |
+      +----------------+----------------+----------------+
                        |
                        v
              [traceable progress view]
 ```
 
-Background workflow mode uses `dekk apxm workflow execute <workflow.apxmw> --background --session-root <dir> --json` and follows `pid`, `session_dir`, `log_file`, `background.json`, and workflow-root `trace.ndjson`. Live follow mode uses `dekk apxm watch <thread_id>`. Offline follow mode uses `dekk apxm rollout list`, `dekk apxm rollout replay <thread_id>`, and `dekk apxm rollout archive <thread_id>`.
+Server/MCP workflow mode should return `execution_id`, `session_id`, and `session_dir` so APXM can control many concurrent sessions through run events and cancellation. Background workflow mode uses `dekk apxm workflow execute <workflow.apxmw> --background --session-root <dir> --json` and follows `pid`, `session_dir`, `log_file`, `background.json`, and workflow-root `trace.ndjson`. Live follow mode uses `dekk apxm watch <thread_id>`. Offline follow mode uses `dekk apxm rollout list`, `dekk apxm rollout replay <thread_id>`, and `dekk apxm rollout archive <thread_id>`.

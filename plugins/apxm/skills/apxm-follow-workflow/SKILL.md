@@ -5,7 +5,7 @@ description: Use when following, watching, replaying, archiving, or explaining A
 
 # APXM Follow Workflow
 
-Use this skill when the user wants to follow APXM work as it runs, launch a workflow in the background, inspect a completed workflow, or produce a traceable replay/archive. APXM OS has four follow modes: background workflow handles, live server streaming, offline rollout replay, and emitted session inspection. Workflow runs should expose a top-level session directory with `manifest.json`, `live.json`, `trace.ndjson`, `results.json`, and `metrics.json`, plus child step sessions.
+Use this skill when the user wants to follow APXM work as it runs, launch a workflow in the background, inspect a completed workflow, or produce a traceable replay/archive. Prefer APXM server/MCP for controllable multi-session work; use local background workflow handles when the server control plane is unavailable or the user explicitly wants a detached CLI job. Workflow runs should expose a top-level session directory with `manifest.json`, `live.json`, `trace.ndjson`, `results.json`, and `metrics.json`, plus child step sessions.
 
 ## Quick Start
 
@@ -19,14 +19,26 @@ python3 "$PLUGIN_ROOT/scripts/apxm_doctor.py"
 If `apxm` is not installed globally and Dekk needs the APXM worktree, set `APXM_WORKTREE=/path/to/apxm` or pass `--apxm-cwd /path/to/apxm`.
 
 3. If APXM is unavailable, return `setup_required`. Use the same APXM command route the doctor selected (`apxm` or `dekk apxm`).
-4. For live workflow/run progress, use:
+4. Choose the follow surface in this order:
+
+```text
+[Need to follow APXM work]
+        |
+        +--> [APXM server/MCP run id available] -> [watch/events/cancel by execution_id]
+        |
+        +--> [local background workflow] -------> [pid/log/session_dir]
+        |
+        +--> [completed/offline run] -----------> [rollout replay/archive or session inspect]
+```
+
+5. For live workflow/run progress, use:
 
 ```bash
 dekk apxm watch <thread_id>
 dekk apxm watch <thread_id> --expand <node_id>
 ```
 
-5. For completed or offline runs, use:
+6. For completed or offline runs, use:
 
 ```bash
 dekk apxm rollout list --limit 20
@@ -34,13 +46,13 @@ dekk apxm rollout replay <thread_id>
 dekk apxm rollout archive <thread_id> --output <path>
 ```
 
-6. For local process visibility, use:
+7. For local process visibility, use:
 
 ```bash
 dekk apxm process list
 ```
 
-7. For background workflow launch and local follow handles, use:
+8. For background workflow launch and local follow handles, use:
 
 ```bash
 dekk apxm workflow execute <workflow.apxmw> --background --session-root <dir> --json
@@ -50,7 +62,7 @@ dekk apxm process list --json
 
 The background response should include `pid`, `session_dir`, `log_file`, and `command`. The workflow-root session should contain `background.json`, `trace.ndjson`, `live.json`, and final `results.json` when complete.
 
-8. For workflow/session output, use:
+9. For workflow/session output, use:
 
 ```bash
 dekk apxm session list --limit 20
@@ -82,6 +94,7 @@ If Dekk does not expose `workflow`, call the APXM binary directly from the APXM 
 
 - Do not confuse workflow following with workflow execution. Watching/replay is observability.
 - Live `watch` requires `apxm-server` and a valid `thread_id`.
+- Server/MCP-started work should be controlled by server-owned IDs; do not invent shell process management around it.
 - `rollout replay` and `rollout archive` work offline from rollout storage.
 - `session inspect` works from execution session output even when no rollout was recorded.
 - Workflow-root sessions are the canonical offline follow handle for `.apxmw` runs; child step sessions provide graph-level detail.

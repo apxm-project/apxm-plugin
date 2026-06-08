@@ -1,6 +1,6 @@
 {
   "name": "apxm",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "APXM orchestration workflows for Codex: councils, verified workers, graph execution, skill-to-workflow conversion, trace verification, and workflow following.",
   "author": {
     "name": "APXM Project",
@@ -23,7 +23,7 @@
   "interface": {
     "displayName": "APXM",
     "shortDescription": "Graph-native orchestration and council workflows",
-    "longDescription": "APXM packages reusable Codex skills for selecting verified workers, running traceable multi-perspective councils, converting skills into APXM workflows, executing APXM graphs through Dekk, following live/offline workflow progress, and verifying traces.",
+    "longDescription": "APXM packages reusable Codex skills for selecting verified workers, running traceable multi-perspective councils, converting skills into APXM workflows, executing APXM graphs through APXM server/Dekk, following live/offline workflow progress, and verifying traces.",
     "developerName": "APXM Project",
     "category": "Productivity",
     "capabilities": [
