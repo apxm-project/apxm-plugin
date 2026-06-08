@@ -1,11 +1,14 @@
 ---
 name: apxm-orchestrate
-description: Use when a task should be decomposed, delegated to verified APXM workers, run as an APXM graph, or coordinated through fan-out/fan-in orchestration. Use for large code, research, analysis, or implementation workflows where APXM/Dekk should remain the execution authority.
+description: Use when a task should be turned into a bounded APXM worker DAG or workflow, executed through APXM, and followed through workflow events/status. Use for large code, research, analysis, or implementation workflows where APXM/Dekk should remain the execution authority.
 ---
 
 # APXM Orchestrate
 
-Use this skill to route substantial work through APXM. Do not simulate a worker swarm in prompt text when APXM can own the graph, policy checks, worker admission, execution, and trace.
+Use this skill to create one bounded APXM pass, execute it through APXM, and
+wait through APXM events/status. Do not simulate a worker swarm in prompt text
+when APXM can own the graph, policy checks, worker admission, execution, and
+trace.
 
 ## Quick Start
 
@@ -27,8 +30,26 @@ python3 "$PLUGIN_ROOT/scripts/apxm_doctor.py" --verify-workers <worker-a>,<worke
 
 Use `--policy <policy.json>` when a policy declares `worker_roles`, `preferred_workers`, or `allowed_workers`; the doctor will report role routes and missing capabilities.
 
-5. If the target APXM HTTP MCP inventory lists `apxm_orchestrate_start`, use
-   the native server-owned path for natural-language task fan-out:
+5. For a CLI-capable caller, prefer the high-level goal wrapper:
+
+```bash
+dekk apxm goal "<brief objective>" \
+  --context "<relevant repo/product/run context>" \
+  --workspace git_worktree \
+  --repo-root <repo> \
+  --worker research:"Inspect the relevant code":worker-a \
+  --worker implement:"Make the scoped patch":worker-b \
+  --worker verify:"Run checks and inspect evidence":worker-c \
+  --depends implement=research \
+  --depends verify=implement
+```
+
+Use `--event` and `--trigger` when an external event caused the pass, and
+`--dry-run` when the first step should only materialize and validate the
+workflow bundle. Worker profile names are policy bindings, not requirements.
+
+6. If the target APXM HTTP MCP inventory lists `apxm_orchestrate_start`, use
+   the native server-owned path for an agent-created worker DAG:
 
 ```text
 apxm_orchestrate_start -> execution_id + workflow_path + bundle_dir
@@ -50,13 +71,13 @@ Use `workflow_started.payload.session_dir` as the workflow-root session and each
 `workflow_step_completed.payload.session_dir` as the child step session handle.
 Wake the caller/planner only on `orchestrator_wake` or terminal workflow events.
 
-6. If an executable canonical APXM graph already exists, prefer:
+7. If an executable canonical APXM graph already exists, prefer:
 
 ```bash
 dekk apxm execute <workflow.air>
 ```
 
-7. If native orchestration is not advertised, create a compact APXM request under `.apxm/requests/` and hand it to the compile/execute path. The request should contain only objective, constraints, desired artifacts, worker requirements, budget, and verification requirements. Do not pass PlanGraph JSON directly to `dekk apxm validate`; current APXM validation expects canonical `.air`.
+8. If native orchestration is not advertised, create a compact APXM request under `.apxm/requests/` and hand it to the compile/execute path. The request should contain only objective, constraints, desired artifacts, worker requirements, budget, and verification requirements. Do not pass PlanGraph JSON directly to `dekk apxm validate`; current APXM validation expects canonical `.air`.
 
 If a native orchestration command is present in `dekk apxm --help`, it may replace the request handoff:
 
@@ -70,6 +91,7 @@ dekk apxm orchestrate --task "<brief objective>" --policy <policy.json>
 - Use APXM worker discovery, not hard-coded assumptions about Claude, Codex, or any other host.
 - Model the workflow by roles (`planner/orchestrator`, `executor`, `reviewer`, `critic`, `verifier`, `synthesizer`) and let APXM/policy bind those roles to verified worker profiles.
 - Treat worker-authored graphs as proposals until APXM validates and adopts them.
+- Use `apxm_plan_as_graph` for graph synthesis, not for bypassing external-worker admission. External-worker fan-out belongs in `dekk apxm goal` or `apxm_orchestrate_start`.
 - Require a budget policy before expensive or headless fan-out.
 - Prefer fan-out for independent subtasks and fan-in for synthesis, critique, merge, or verification.
 - Persist trace IDs and artifact paths in the final answer.

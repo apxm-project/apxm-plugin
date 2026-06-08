@@ -205,6 +205,41 @@ Do not emit a `goal` field into MCP schemas. If an autonomous planner decides
 more workers or critics are needed, it should produce another bounded DAG or
 start another pass through APXM policy, not hide a prompt loop outside APXM.
 
+## Agent-Created Workflow Flow
+
+```text
+[Any agent receives complex goal]
+          |
+          v
+[Use apxm-orchestrate]
+          |
+          v
+[Discover APXM + verified workers]
+          |
+          v
+[Create bounded worker DAG or .apxmw]
+          |
+          +--> [CLI caller] -> [dekk apxm goal]
+          |
+          +--> [MCP caller] -> [apxm_orchestrate_start]
+          |
+          +--> [existing workflow] -> [apxm_workflow_start or workflow run]
+          |
+          v
+[APXM owns execution_id, events, cancel, artifacts]
+          |
+          v
+[Caller sleeps and pages events/status]
+          |
+          v
+[Gate/eval result + optional next bounded pass]
+```
+
+The workflow creation skill is `apxm-orchestrate` for a new goal/pass and
+`apxm-skill-to-workflow` for converting an existing skill into reusable APXM
+workflow artifacts. Do not add another hidden natural-language planner tool in
+the server unless it reuses these explicit APXM control surfaces.
+
 ## Skill-To-Workflow Flow
 
 ```text

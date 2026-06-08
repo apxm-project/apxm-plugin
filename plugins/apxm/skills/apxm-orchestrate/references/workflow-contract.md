@@ -19,12 +19,15 @@ APXM owns execution. Skills only prepare intent, call APXM/Dekk, and report trac
 [Create compact request, resolved worker DAG, or use existing canonical graph]
     |
     v
-[Native MCP available?]
+[Choose execution surface]
     |
-    +--> [yes] -> [apxm_orchestrate_start once]
-    |                 |
-    |                 v
-    |          [sleep until workflow events/status wake]
+    +--> [CLI] -> [dekk apxm goal]
+    |
+    +--> [MCP] -> [apxm_orchestrate_start once]
+    |
+    +--> [checked-in .apxmw] -> [workflow validate/analyze/run]
+    |
+    +--> [graph synthesis] -> [apxm_plan_as_graph proposal]
     |
     v
 [APXM validates policy + worker admission]
@@ -38,14 +41,34 @@ APXM owns execution. Skills only prepare intent, call APXM/Dekk, and report trac
 [APXM schedules verified workers]
     |
     v
+[orchestrator sleeps; APXM retains events]
+    |
+    v
 [Workers execute / propose child graphs]
     |
     v
 [APXM fan-in synthesis + verification]
     |
     v
+[workflow events/status wake orchestrator]
+    |
+    v
 [Return trace ID, artifacts, evidence, warnings]
 ```
+
+## Surface Selection
+
+- `dekk apxm goal`: human or agent CLI path for one bounded worker DAG. It
+  calls the server orchestration path, follows events by default, and exposes
+  `--status`, `--events`, and `--cancel` for later control.
+- `apxm_orchestrate_start`: MCP path for the same server-owned pass when an
+  MCP-capable agent has already resolved the worker DAG.
+- `apxm_workflow_start`: MCP path for an existing `.apxmw` file.
+- `dekk apxm workflow run` / `dekk apxm workflow execute`: local checked-in
+  `.apxmw` execution. Use `--background` when the caller needs detached local
+  follow handles instead of server-owned control.
+- `apxm_plan_as_graph`: natural-language graph synthesis and optional graph
+  execution. It does not replace external-worker admission.
 
 ## Native MCP Contract
 

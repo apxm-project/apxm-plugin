@@ -22,6 +22,11 @@ LOOP_CONTRACT = (
 AUTO_DOC = ROOT / "docs" / "APXM-AUTONOMOUS-LOOP.md"
 TEST_MATRIX = ROOT / "docs" / "TEST-MATRIX.md"
 MCP_SKILL = PLUGIN_ROOT / "skills" / "apxm-mcp" / "SKILL.md"
+ORCH_SKILL = PLUGIN_ROOT / "skills" / "apxm-orchestrate" / "SKILL.md"
+ORCH_CONTRACT = (
+    PLUGIN_ROOT / "skills" / "apxm-orchestrate" / "references" / "workflow-contract.md"
+)
+PLUGIN_FLOW = ROOT / "docs" / "APXM-PLUGIN-FLOW.md"
 PLUGIN_JSON = PLUGIN_ROOT / ".codex-plugin" / "plugin.json"
 
 
@@ -32,7 +37,7 @@ def read(path: pathlib.Path) -> str:
 class AutonomousContractTests(unittest.TestCase):
     def test_plugin_metadata_frames_autonomous_as_specs_not_runtime_claim(self) -> None:
         manifest = json.loads(read(PLUGIN_JSON))
-        self.assertEqual(manifest["version"], "0.1.11")
+        self.assertEqual(manifest["version"], "0.1.12")
         text = " ".join(
             [
                 manifest["description"],
@@ -42,6 +47,20 @@ class AutonomousContractTests(unittest.TestCase):
         self.assertIn("loop specs", text)
         self.assertNotIn("trigger registry", text)
         self.assertNotIn("background agent lifecycle", text)
+
+    def test_orchestrate_skill_is_create_execute_wait_not_hidden_planner(self) -> None:
+        combined = "\n".join([read(ORCH_SKILL), read(ORCH_CONTRACT), read(PLUGIN_FLOW)])
+        for phrase in (
+            "dekk apxm goal",
+            "apxm_orchestrate_start",
+            "apxm_workflow_events",
+            "apxm_workflow_status",
+            "apxm_plan_as_graph",
+            "bounded worker DAG",
+            "Caller sleeps and pages events/status",
+        ):
+            self.assertIn(phrase, combined)
+        self.assertIn("Do not add another hidden natural-language planner tool", combined)
 
     def test_skill_uses_os_to_server_path_not_server_trigger_registry(self) -> None:
         skill = read(AUTO_SKILL)
