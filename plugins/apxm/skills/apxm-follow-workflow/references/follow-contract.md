@@ -35,7 +35,7 @@
 
 ## Session Inspection
 
-`dekk apxm session list` and `dekk apxm session inspect <session-id-or-path>` read execution session output emitted by `apxm run`, `apxm execute`, and `apxm workflow run`. Use sessions when a workflow produced `live.json`, `trace.ndjson`, node outputs, and metrics, but no rollout exists.
+`dekk apxm session list` and `dekk apxm session inspect <session-id-or-path>` read execution session output emitted by `apxm run`, `apxm execute`, and `apxm workflow run`. Workflow roots should be listed as first-class sessions with `manifest.json`, `live.json`, `results.json`, and `metrics.json`; child step sessions carry graph-level node traces and outputs. Use sessions when no rollout exists or when the user wants a local/offline handle.
 
 ## Workflow File Lifecycle
 
@@ -52,19 +52,21 @@
 [workflow execute --session-root ...]
       |
       v
-[thread/session id]
+[workflow session dir]
       |
       +--> [watch live]
       |
       +--> [rollout replay/archive later]
       |
-      +--> [session inspect/diff]
+      +--> [session inspect workflow root]
+      |
+      +--> [inspect child step sessions]
 ```
 
 ## Failure Modes
 
 - No APXM binary: run APXM setup/install.
 - No `apxm-server`: use offline rollout commands or start server.
-- No rollout found: inspect session output, then run through a rollout-recording surface if regulatory replay is required.
+- No rollout found: inspect the workflow-root session output, then run through a rollout-recording surface if regulatory replay is required.
 - No Dekk `workflow` group: call `apxm workflow` directly or update `.dekk.toml`.
 - No Dekk `session` group: call `apxm session` directly or update `.dekk.toml`.

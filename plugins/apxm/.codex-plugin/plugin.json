@@ -1,6 +1,6 @@
 {
   "name": "apxm",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "APXM orchestration workflows for Codex: councils, verified workers, graph execution, skill-to-workflow conversion, trace verification, and workflow following.",
   "author": {
     "name": "APXM Project",

@@ -5,7 +5,7 @@ description: Use when following, watching, replaying, archiving, or explaining A
 
 # APXM Follow Workflow
 
-Use this skill when the user wants to follow APXM work as it runs, inspect a completed workflow, or produce a traceable replay/archive. APXM OS has three follow modes: live server streaming, offline rollout replay, and emitted session inspection.
+Use this skill when the user wants to follow APXM work as it runs, inspect a completed workflow, or produce a traceable replay/archive. APXM OS has three follow modes: live server streaming, offline rollout replay, and emitted session inspection. Workflow runs should expose a top-level session directory with `manifest.json`, `live.json`, `results.json`, and `metrics.json`, plus child step sessions.
 
 ## Quick Start
 
@@ -56,6 +56,8 @@ When the user is following APXM workflow files, prefer the workflow subcommands 
 dekk apxm workflow validate <workflow.apxmw>
 dekk apxm workflow analyze <workflow.apxmw>
 dekk apxm workflow execute <workflow.apxmw> --session-root <dir> --json
+dekk apxm session list --session-root <dir> --json
+dekk apxm session inspect <workflow-session-dir> --json
 ```
 
 If Dekk does not expose `workflow`, call the APXM binary directly from the APXM repo:
@@ -70,6 +72,7 @@ If Dekk does not expose `workflow`, call the APXM binary directly from the APXM 
 - Live `watch` requires `apxm-server` and a valid `thread_id`.
 - `rollout replay` and `rollout archive` work offline from rollout storage.
 - `session inspect` works from execution session output even when no rollout was recorded.
+- Workflow-root sessions are the canonical offline follow handle for `.apxmw` runs; child step sessions provide graph-level detail.
 - Prefer `rollout archive` when the user needs reproducibility or handoff.
 - Include the `thread_id`, server base, rollout source, and archive path in the final answer.
 - If the workflow has no rollout yet, inspect emitted session output and explain what must create a rollout.

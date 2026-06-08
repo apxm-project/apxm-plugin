@@ -80,3 +80,5 @@ dekk apxm workflow execute <workflow.apxmw> --session-root <dir> --json
 ```
 
 Expected: live follow mode uses `watch` against a running server and thread id. Session follow mode inspects emitted session directories. Offline rollout mode uses rollout replay/archive after a rollout exists.
+
+For `.apxmw` execution, the returned `session_dir` must itself contain `manifest.json`, `live.json`, `results.json`, and `metrics.json`; `dekk apxm session list --session-root <dir>` should list the workflow root, and `session inspect <workflow-session-dir> --json` should expose `results.step_results` with child step session paths.
