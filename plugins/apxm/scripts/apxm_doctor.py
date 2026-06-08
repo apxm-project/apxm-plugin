@@ -30,6 +30,7 @@ DEFAULT_ROLE_CAPABILITIES: dict[str, list[str]] = {
     "graph_author": ["read", "graph_author"],
     "executor": ["execute"],
     "reviewer": ["read"],
+    "critic": ["read", "critique"],
     "verifier": ["execute"],
     "synthesizer": ["read"],
 }

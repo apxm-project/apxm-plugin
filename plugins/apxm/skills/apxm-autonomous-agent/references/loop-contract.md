@@ -230,14 +230,14 @@ The loop should be inspectable through APXM server run events or APXM workflow s
 
 ## Native Orchestration Pass
 
-Use `apxm_orchestrate_start` when an agent has one bounded event/task and wants
-APXM to split it across workers:
+Use `apxm_orchestrate_start` when an agent has resolved one bounded event/task
+into an explicit worker DAG and wants APXM to execute it:
 
 ```text
-[orchestrator agent]
+[caller/planner agent]
         |
         v
-[apxm_orchestrate_start once]
+[apxm_orchestrate_start once with explicit workers]
         |
         v
 [orchestrator_sleep event]
@@ -252,7 +252,7 @@ APXM to split it across workers:
 [status confirms succeeded/failed]
 ```
 
-The orchestrator should store `execution_id`, `workflow_path`, `bundle_dir`, and
+The caller/planner should store `execution_id`, `workflow_path`, `bundle_dir`, and
 `session_dir`, then page `apxm_workflow_events` with `since = next_seq`. It
 should not manually prompt workers after start. Real ACP workers require explicit
 `admit_capabilities: ["SPAWN_AGENT"]`; provider names are policy bindings, not

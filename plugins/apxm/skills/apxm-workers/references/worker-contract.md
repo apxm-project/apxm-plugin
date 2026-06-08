@@ -46,6 +46,10 @@
     "reviewer": {
       "required_capabilities": ["read"],
       "min_count": 1
+    },
+    "critic": {
+      "required_capabilities": ["read", "critique"],
+      "min_count": 1
     }
   },
   "preferred_workers": {
@@ -55,7 +59,7 @@
 }
 ```
 
-`preferred_workers` is a tie-breaker, not an admission bypass. APXM must still verify the route and satisfy policy.
+`reviewer` is a read/evidence role. Use `critic` when the policy requires explicit dissent or adversarial critique. `preferred_workers` is a tie-breaker, not an admission bypass; APXM must still verify the route and satisfy policy.
 
 ## Graph Authorship
 

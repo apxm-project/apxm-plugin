@@ -37,17 +37,18 @@ apxm_workflow_status   -> confirm running/succeeded/failed
 apxm_workflow_cancel   -> stop by execution_id
 ```
 
-Call `apxm_orchestrate_start` once with a bounded `workers` DAG, optional
-`context`, `event`, `trigger`, and an explicit `workspace` policy. For real ACP
-workers, include `admit_capabilities: ["SPAWN_AGENT"]`. After start, do not
-manually prompt workers; APXM owns worker spawn, fan-in, gate/eval, feedback,
-events, and cancellation.
+Call `apxm_orchestrate_start` once only after the caller/planner has resolved a
+bounded `workers` DAG for this pass. Include optional `context`, `event`,
+`trigger`, and an explicit `workspace` policy. For real ACP workers, include
+`admit_capabilities: ["SPAWN_AGENT"]`. After start, do not manually prompt
+workers; APXM owns worker spawn, fan-in, gate/eval, feedback, events, and
+cancellation for that pass.
 
 Observe workflow lifecycle events in `apxm_workflow_events`: `workflow_started`,
 `workflow_step_started`, `workflow_step_completed`, and `workflow_finished`.
 Use `workflow_started.payload.session_dir` as the workflow-root session and each
 `workflow_step_completed.payload.session_dir` as the child step session handle.
-Wake the orchestrator only on `orchestrator_wake` or terminal workflow events.
+Wake the caller/planner only on `orchestrator_wake` or terminal workflow events.
 
 6. If an executable canonical APXM graph already exists, prefer:
 
@@ -67,7 +68,7 @@ dekk apxm orchestrate --task "<brief objective>" --policy <policy.json>
 
 - Keep delegated prompts short. Send objectives, constraints, inputs, expected artifacts, and success checks.
 - Use APXM worker discovery, not hard-coded assumptions about Claude, Codex, or any other host.
-- Model the workflow by roles (`planner`, `executor`, `reviewer`, `verifier`, `synthesizer`) and let APXM/policy bind those roles to verified worker profiles.
+- Model the workflow by roles (`planner/orchestrator`, `executor`, `reviewer`, `critic`, `verifier`, `synthesizer`) and let APXM/policy bind those roles to verified worker profiles.
 - Treat worker-authored graphs as proposals until APXM validates and adopts them.
 - Require a budget policy before expensive or headless fan-out.
 - Prefer fan-out for independent subtasks and fan-in for synthesis, critique, merge, or verification.

@@ -5,7 +5,7 @@ APXM owns execution. Skills only prepare intent, call APXM/Dekk, and report trac
 ## Flowchart
 
 ```text
-[User goal]
+[Human goal]
     |
     v
 [APXM skill selects workflow type]
@@ -16,7 +16,7 @@ APXM owns execution. Skills only prepare intent, call APXM/Dekk, and report trac
     +--> [setup_required] --> [return missing APXM/runtime/worker gap]
     |
     v
-[Create compact request or use existing canonical graph]
+[Create compact request, resolved worker DAG, or use existing canonical graph]
     |
     v
 [Native MCP available?]
@@ -50,7 +50,8 @@ APXM owns execution. Skills only prepare intent, call APXM/Dekk, and report trac
 ## Native MCP Contract
 
 When the target APXM HTTP MCP server advertises `apxm_orchestrate_start`, prefer
-it for task-to-worker orchestration:
+it for one-pass task-to-worker execution after the caller/planner has resolved
+an explicit bounded worker DAG:
 
 ```json
 {
@@ -60,8 +61,9 @@ it for task-to-worker orchestration:
   "trigger": "optional trigger rule or reason",
   "workspace": { "mode": "session|shared|git_worktree" },
   "workers": [
-    { "id": "planner", "role": "plan", "profile": "any-verified-profile" },
-    { "id": "executor", "role": "execute", "depends_on": ["planner"] }
+    { "id": "planner", "role": "plan this bounded pass", "profile": "worker-alpha" },
+    { "id": "executor", "role": "execute the admitted work", "depends_on": ["planner"] },
+    { "id": "critic", "role": "preserve dissent and missing evidence", "depends_on": ["executor"] }
   ],
   "admit_capabilities": ["SPAWN_AGENT"]
 }
@@ -69,7 +71,7 @@ it for task-to-worker orchestration:
 
 The response returns `execution_id`, `session_id`, `session_dir`,
 `workflow_path`, `bundle_dir`, `plan`, `control`, and `orchestration`. Store
-those handles. The orchestrator agent should then go idle; APXM owns worker
+those handles. The caller/planner agent should then go idle; APXM owns worker
 spawning, prompts, fan-in, gate/eval, feedback, session output, and events.
 
 Follow by paging:
@@ -121,6 +123,10 @@ Use this shape when no native `dekk apxm orchestrate` surface is available yet:
   }
 }
 ```
+
+`goal` is the human-facing word. Do not send a `goal` field to
+`apxm_orchestrate_start`; map human intent to `task` for the native MCP tool or
+to `objective` for this compact fallback envelope.
 
 ## Admission Rules
 

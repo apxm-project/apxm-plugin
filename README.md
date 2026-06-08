@@ -1,7 +1,8 @@
 # APXM Plugin
 
-APXM plugin packages reusable Codex and open-agent skills for APXM-native
-orchestration workflows.
+APXM plugin packages reusable agent-facing skills for APXM-native
+orchestration workflows. It is distributed through the Codex plugin format, but
+the runtime worker model is APXM-agent agnostic.
 
 This repository is a Codex marketplace root. The installable plugin lives at
 `plugins/apxm`.
@@ -24,10 +25,10 @@ This repository is a Codex marketplace root. The installable plugin lives at
 The plugin is not the APXM runtime. It teaches agents how to invoke APXM
 correctly. APXM server/Dekk remains the execution authority.
 
-The plugin does not assume Claude or Codex are installed. Execute-capable skills
+The plugin does not assume any specific agent host is installed. Execute-capable skills
 start from preflight, map workflow roles to capabilities, and select from
-verified APXM profiles. Codex-as-planner and Claude-as-executor is an example
-policy binding, not a requirement.
+verified APXM profiles. Provider-specific pairings are example policy bindings,
+not requirements.
 
 See `docs/APXM-PLUGIN-FLOW.md` for the plain-text plugin flowchart and boundary model. See `docs/APXM-AUTONOMOUS-LOOP.md` for the autonomous event loop architecture.
 

@@ -154,7 +154,7 @@ The heavy context should live in APXM artifacts and skill packs, not in the prom
           +----------------+----------------+
           |                |                |
           v                v                v
-      [planner]       [executor]       [verifier]
+ [planner/orchestrator] [executor] [reviewer/critic] [verifier]
           |                |                |
           +----------------+----------------+
                            |
@@ -164,8 +164,8 @@ The heavy context should live in APXM artifacts and skill packs, not in the prom
 
 Plans should split into roles with compact worker briefs: objective, input refs, constraints, expected artifact, evidence/check command, budget, timeout, and stop conditions. APXM should validate worker-authored graphs before execution.
 
-For a bounded agent-initiated pass, the agent should call
-`apxm_orchestrate_start` once, store the returned `execution_id`, then sleep.
+For a bounded agent-initiated pass, the agent should resolve an explicit worker
+DAG, call `apxm_orchestrate_start` once, store the returned `execution_id`, then sleep.
 APXM emits `orchestrator_sleep` after accepting ownership and
 `orchestrator_wake` before terminal workflow completion or cancellation.
 
@@ -242,4 +242,4 @@ If a path has no follow or stop handle, it is not a governed autonomous loop.
 }
 ```
 
-For missing APXM OS trigger loading, skill execution, run observation, or worker verification, report the gap instead of claiming the loop is registered or armed. A Codex planner and Claude executor is a demo policy; the production model is registered worker roles with required capabilities and late binding by APXM.
+For missing APXM OS trigger loading, skill execution, run observation, or worker verification, report the gap instead of claiming the loop is registered or armed. Provider-specific planner/executor pairings are demo policies; the production model is registered worker roles with required capabilities and late binding by APXM.

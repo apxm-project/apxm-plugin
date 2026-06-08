@@ -32,13 +32,13 @@ Use this skill for APXM MCP adapter work. The MCP layer is an interface, not the
 - `apxm_plan_as_graph`: natural-language task to validated plan graph, optionally executed.
 - `apxm_trace_fetch`, `apxm_capability_list`, `apxm_skills_list`, `apxm_skill_call`: trace, capability, and skill surfaces.
 - `apxm_workflow_start`, `apxm_workflow_status`, `apxm_workflow_events`, `apxm_workflow_cancel`: native workflow control when the APXM server advertises them.
-- `apxm_orchestrate_start`: native task-to-parallel-worker orchestration when the APXM HTTP MCP server advertises it.
+- `apxm_orchestrate_start`: native one-pass execution of an explicit bounded worker DAG when the APXM HTTP MCP server advertises it.
 
 ## Workflow Launch Pattern
 
-When the target server lists `apxm_orchestrate_start`, use it for autonomous
-task fan-out: call it once with `task`, optional `context/event/trigger`,
-bounded `workers`, and workspace policy. For real ACP workers, include
+When the target server lists `apxm_orchestrate_start`, use it after a
+caller/planner has resolved one bounded pass: call it once with `task`, optional
+`context/event/trigger`, bounded `workers`, and workspace policy. For real ACP workers, include
 `admit_capabilities: ["SPAWN_AGENT"]`. Store the returned `execution_id`,
 `session_id`, `session_dir`, `workflow_path`, and `bundle_dir`; then follow with
 `apxm_workflow_events/status` and stop with `apxm_workflow_cancel`. Do not

@@ -110,7 +110,7 @@ The preferred agent path is MCP over APXM server because the server can own many
 
 ## Worker Model
 
-A worker can be any APXM-verified route that supports the requested capability. Codex planning and Claude execution is a useful example policy, not a runtime requirement:
+A worker can be any APXM-verified route that supports the requested capability. Provider-specific planning/execution pairings are useful example policies, not runtime requirements:
 
 ```text
 [APXM registry]
@@ -145,11 +145,13 @@ Any worker-authored graph remains untrusted until APXM validates, compiles, and 
        v
 [Required roles]
        |
-       +--> planner: read + graph_author
+       +--> planner/orchestrator: read + graph_author
        |
        +--> executor: execute
        |
-       +--> reviewer: read + critique/evidence policy
+       +--> reviewer: read + evidence policy
+       |
+       +--> critic: read + critique
        |
        +--> verifier: execute checks
        |
@@ -180,13 +182,28 @@ Example policy binding:
     "executor": { "required_capabilities": ["execute"] }
   },
   "preferred_workers": {
-    "planner": ["codex"],
-    "executor": ["claude"]
+    "planner": ["worker-alpha"],
+    "executor": ["worker-beta"]
   }
 }
 ```
 
-The same policy shape works with `gemini`, `cursor`, `qwen`, `opencode`, or a custom profile registered by `dekk apxm agent add <name> --command "<cmd>"`.
+The same policy shape works with any APXM profile registered by
+`dekk apxm agent add <name> --command "<cmd>"`.
+
+## Goal, Task, And Pass Boundaries
+
+Use these words consistently:
+
+- `goal`: human-facing intent, as in `dekk apxm goal "..."`.
+- `task`: the concrete string passed to `apxm_orchestrate_start`.
+- `objective`: the fallback compact request-envelope field.
+- `planner/orchestrator`: a role that proposes or supervises a bounded pass.
+- `apxm_orchestrate_start`: the server-owned execution primitive for one explicit bounded worker DAG.
+
+Do not emit a `goal` field into MCP schemas. If an autonomous planner decides
+more workers or critics are needed, it should produce another bounded DAG or
+start another pass through APXM policy, not hide a prompt loop outside APXM.
 
 ## Skill-To-Workflow Flow
 

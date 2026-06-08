@@ -20,6 +20,10 @@ Use compact JSON policies. Include only fields that matter for the run.
       "required_capabilities": ["read"],
       "min_count": 1
     },
+    "critic": {
+      "required_capabilities": ["read", "critique"],
+      "min_count": 1
+    },
     "verifier": {
       "required_capabilities": ["execute"],
       "min_count": 1
@@ -47,7 +51,8 @@ Field notes:
 
 - `budget_usd` is a live spending ceiling, not the static `max_cost` planning gate.
 - `worker_roles` describes required capabilities. It should not name providers unless a role truly requires a provider-specific feature.
-- `preferred_workers` is optional. Use it for examples like Codex-as-planner and Claude-as-executor, but treat that as a preference over verified APXM profiles, not a hard runtime assumption.
+- `reviewer` is a read/evidence role. Use `critic` only when the run needs explicit dissent or adversarial critique capability.
+- `preferred_workers` is optional. Use neutral registered profile IDs such as `worker-alpha`; provider-specific names are preferences over verified APXM profiles, not runtime assumptions.
 - `allowed_workers` is optional. Omit it to let APXM choose from all verified workers.
 - `write_mode` should be conservative for shared repos: `read_only`, `patch_proposal`, or `review_then_apply`.
-- `merge_strategy` should stay orchestrator-owned until APXM has first-class cross-host merge support.
+- `merge_strategy` should stay APXM fan-in owned until APXM has first-class cross-host merge support.

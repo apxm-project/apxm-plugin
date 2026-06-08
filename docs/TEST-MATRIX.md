@@ -40,10 +40,10 @@ Expected: APXM templates and custom registrations are visible. If `apxm` is not 
 Optional role policy check:
 
 ```bash
-python3 plugins/apxm/scripts/apxm_doctor.py --policy /path/to/policy.json --verify-workers <planner>,<executor>
+python3 plugins/apxm/scripts/apxm_doctor.py --policy /path/to/policy.json --verify-workers <profile-a>,<profile-b>
 ```
 
-Expected: `role_routes` reports selected verified workers or concrete missing capabilities. Provider names are preferences, not assumptions.
+Expected: `role_routes` reports selected verified workers or concrete missing capabilities. Role names are resolved through policy; pass role names to `--verify-workers` only if they are actual registered APXM profile IDs. Provider names are preferences, not assumptions.
 
 ## Worker Spawn
 
@@ -102,7 +102,7 @@ Native MCP orchestration smoke:
 ```text
 tools/list includes apxm_orchestrate_start
 tools/list includes apxm_workflow_status/events/cancel
-apxm_orchestrate_start deterministic workers -> execution_id
+apxm_orchestrate_start explicit bounded workers -> execution_id
 apxm_workflow_events({execution_id, since: 0}) -> orchestrator_sleep
 page events with since = next_seq
 apxm_workflow_events -> orchestrator_wake or terminal event
@@ -117,10 +117,10 @@ parked or long-running orchestration can be interrupted with
 Design-only checks must not spawn-test every candidate worker. Use explicit spawn verification only when execution policy must bind workers:
 
 ```bash
-python3 plugins/apxm/scripts/apxm_doctor.py --apxm-cwd /path/to/apxm --verify-workers <planner>,<executor>,<verifier>
+python3 plugins/apxm/scripts/apxm_doctor.py --apxm-cwd /path/to/apxm --verify-workers <profile-a>,<profile-b>,<profile-c>
 ```
 
-Expected: role routes select verified workers or report concrete missing roles. Provider names are examples only.
+Expected: role routes select verified workers or report concrete missing roles. Role names are not profile IDs unless explicitly registered that way. Provider names are examples only.
 
 Caller coverage:
 

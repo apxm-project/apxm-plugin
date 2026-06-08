@@ -22,7 +22,7 @@ If `apxm` is not installed globally and Dekk needs the APXM worktree, set `APXM_
 4. Before execution, request explicit spawn verification for the intended workers:
 
 ```bash
-python3 "$PLUGIN_ROOT/scripts/apxm_doctor.py" --verify-workers <planner-profile>,<executor-profile>
+python3 "$PLUGIN_ROOT/scripts/apxm_doctor.py" --verify-workers <profile-a>,<profile-b>
 ```
 
 Use `--verify-workers all-candidates` for every APXM-listed profile whose executable is on `PATH`. Use `--verify-workers all-resolvable` only when the user accepts broad adapter startup/network cost across the whole APXM registry.
@@ -48,13 +48,16 @@ dekk apxm agent templates --json
 
 Use roles to describe what the workflow needs, then bind workers late:
 
-- `planner`: read context and propose a graph or task split.
+- `planner` or `planner/orchestrator`: read context and propose a graph or task split.
 - `executor`: run the admitted work under APXM policy.
-- `reviewer` or `critic`: inspect outputs and preserve dissent.
+- `reviewer`: inspect outputs and evidence.
+- `critic`: preserve dissent and adversarial critique when policy requires it.
 - `verifier`: run checks and confirm artifacts.
 - `synthesizer`: merge evidence into the final result.
 
-Example only: a policy may prefer Codex for `planner` and Claude for `executor`, but the skill must accept any verified workers with the required capabilities.
+Example only: a policy may prefer particular profile IDs for `planner` and
+`executor`, but the skill must accept any verified workers with the required
+capabilities.
 
 ## Worker Brief
 
