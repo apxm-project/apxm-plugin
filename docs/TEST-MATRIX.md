@@ -115,7 +115,7 @@ Native MCP orchestration smoke:
 
 ```text
 tools/list includes apxm_orchestrate_start
-tools/list includes apxm_workflow_status/events/cancel
+tools/list includes apxm_workflow_status, apxm_workflow_events, and apxm_workflow_cancel
 apxm_orchestrate_start explicit bounded workers -> execution_id
 apxm_workflow_events({execution_id, since: 0}) -> orchestrator_sleep
 page events with since = next_seq

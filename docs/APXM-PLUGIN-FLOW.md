@@ -94,8 +94,10 @@ This plugin is the distribution layer for APXM orchestration skills. It teaches 
 [Agent uses MCP tools]             [Use Dekk/APXM CLI]
     |                                     |
     v                                     v
-[apxm_orchestrate_start or]        [CLI returns pid/session/log]
-[workflow/skill tools]                    |
+[Native server tools]              [Local workflow command]
+    |                                     |
+    |                                     v
+    |                              [CLI returns pid/session/log]
     |
     v
 [Server owns run/session]
@@ -106,7 +108,15 @@ This plugin is the distribution layer for APXM orchestration skills. It teaches 
       [Follow via events, rollout, or session files]
 ```
 
-The preferred agent path is MCP over APXM server because the server can own many concurrent sessions with stable IDs, retained events, cancellation, rollout records, and server-controlled session roots. Dekk and the direct CLI remain local developer surfaces, especially for explicit detached `.apxmw` workflow runs that return APXM follow handles.
+Native server tools include `apxm_orchestrate_start`, `apxm_workflow_start`,
+`apxm_workflow_status`, `apxm_workflow_events`, `apxm_workflow_cancel`,
+`apxm_skills_list`, `apxm_skill_get`, `apxm_skill_validate`,
+`apxm_skill_call`, and `apxm_run` when the target server advertises them. The
+preferred agent path is MCP over APXM server because the server can own many
+concurrent sessions with stable IDs, retained events, cancellation, rollout
+records, and server-controlled session roots. Dekk and the direct CLI remain
+local developer surfaces, especially for explicit detached `.apxmw` workflow
+runs that return APXM follow handles.
 
 ## Worker Model
 
@@ -223,7 +233,7 @@ start another pass through APXM policy, not hide a prompt loop outside APXM.
           |
           +--> [MCP caller] -> [apxm_orchestrate_start]
           |
-          +--> [existing workflow] -> [apxm_workflow_start or workflow run]
+          +--> [existing workflow] -> [apxm_workflow_start or dekk apxm workflow execute]
           |
           v
 [APXM owns execution_id, events, cancel, artifacts]
@@ -338,10 +348,11 @@ Server/MCP orchestration mode should use native `apxm_orchestrate_start` when
 the target server lists it: start once, keep `execution_id`, then sleep until
 `apxm_workflow_events` returns `orchestrator_wake` or a terminal event and
 confirm with `apxm_workflow_status`. Server/MCP workflow mode should use native
-`apxm_workflow_start/status/events/cancel` when the target server lists those
-MCP tools, returning `execution_id`, `session_id`, and `session_dir` so APXM can
-control many concurrent sessions through run events and cancellation. Background
-local CLI workflow mode uses `dekk apxm workflow execute <workflow.apxmw> --background
+`apxm_workflow_start`, `apxm_workflow_status`, `apxm_workflow_events`, and
+`apxm_workflow_cancel` when the target server lists those MCP tools, returning
+`execution_id`, `session_id`, and `session_dir` so APXM can control many
+concurrent sessions through run events and cancellation. Background local CLI
+workflow mode uses `dekk apxm workflow execute <workflow.apxmw> --background
 --session-root <dir> --json` and follows `pid`, `session_dir`, `log_file`,
 `background.json`, and workflow-root `trace.ndjson`. Live follow mode uses
 `dekk apxm watch <thread_id>`. Offline follow mode uses `dekk apxm rollout

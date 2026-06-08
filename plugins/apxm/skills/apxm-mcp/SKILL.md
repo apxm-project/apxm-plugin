@@ -40,8 +40,8 @@ caller/planner has resolved one bounded pass: call it once with `task`, optional
 `context/event/trigger`, bounded `workers`, and workspace policy. For real ACP workers, include
 `admit_capabilities: ["SPAWN_AGENT"]`. Store the returned `execution_id`,
 `session_id`, `session_dir`, `workflow_path`, and `bundle_dir`; then follow with
-`apxm_workflow_events/status` and stop with `apxm_workflow_cancel`. Do not
-manually prompt workers after start.
+`apxm_workflow_events` and `apxm_workflow_status`, and stop with
+`apxm_workflow_cancel`. Do not manually prompt workers after start.
 
 When the target server lists the native workflow tools, launch a `.apxmw` with `apxm_workflow_start`, then follow with `apxm_workflow_status` and `apxm_workflow_events`, and interrupt with `apxm_workflow_cancel`. Treat the returned `execution_id` as the live control handle and `session_dir` as the offline inspection handle.
 

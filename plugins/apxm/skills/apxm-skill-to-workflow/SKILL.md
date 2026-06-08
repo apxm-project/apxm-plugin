@@ -19,13 +19,17 @@ python3 "$PLUGIN_ROOT/scripts/apxm_doctor.py"
 
 If `apxm` is not installed globally and Dekk needs the APXM worktree, set `APXM_WORKTREE=/path/to/apxm` or pass `--apxm-cwd /path/to/apxm`.
 
-4. Prefer the native converter when present:
+4. The current APXM CLI does not expose a native skill-to-workflow converter. Scaffold a workflow pack manually and mark it `scaffolded`, not `compiled`.
+5. Validate and compile only the artifacts that APXM supports today:
 
 ```bash
-dekk apxm skills workflowize <skill-dir> --out <target-dir>
+dekk apxm workflow validate <target-dir>/workflow.apxmw
+dekk apxm workflow analyze <target-dir>/workflow.apxmw
+dekk apxm validate <target-dir>/skill.air
+dekk apxm compile <target-dir>/skill.air -o <target-dir>/skill.apxmobj
 ```
 
-5. If the converter is not available, scaffold a workflow pack manually and mark it `scaffolded`, not `compiled`.
+Skip commands for artifacts that the conversion did not create.
 
 ## Workflow Pack Shape
 

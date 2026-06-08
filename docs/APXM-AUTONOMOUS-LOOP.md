@@ -82,11 +82,11 @@ For the first real implementation, APXM OS should own external provider listener
 
 ## Capability Surfaces To Verify
 
-- If available in the target APXM build: server run events through `/v1/runs`, `/v1/runs/:id/events`, `/events/stream`, and `/cancel`.
+- If available in the target APXM build: server run events through `/v1/runs`, `/v1/runs/{execution_id}/events`, `/v1/runs/{execution_id}/events/stream`, and `/v1/runs/{execution_id}/cancel`.
 - If available in the target APXM build: task queues through `/v1/tasks`, queue claim, leases, and completion.
 - If available in the target APXM build: checkpoints for pause/resume flows.
 - If available in the target APXM build: agent registry routes such as `/v1/agents`, `/v1/agents/register`, and `/v1/receive`.
-- If available in the target APXM build: MCP tools such as `apxm_run`, `apxm_plan_as_graph`, native workflow start/status/events/cancel tools, native orchestration start, trace, capability, and skill tools.
+- If available in the target APXM build: MCP tools such as `apxm_run`, `apxm_plan_as_graph`, `apxm_orchestrate_start`, `apxm_workflow_start`, `apxm_workflow_status`, `apxm_workflow_events`, `apxm_workflow_cancel`, `apxm_trace_fetch`, `apxm_capability_list`, `apxm_skills_list`, `apxm_skill_get`, `apxm_skill_validate`, and `apxm_skill_call`.
 - If available in the target APXM build: runtime `AUTONOMOUS`, `mode=recv`, `WORKFLOW_SPAWN`, and `SPAWN_AGENT`.
 - If available in the target APXM OS build: trigger sidecars such as `triggers.toml`.
 - If available in the target Dekk/APXM build: local `.apxmw` background workflow handles.

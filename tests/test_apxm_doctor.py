@@ -4,10 +4,13 @@
 from __future__ import annotations
 
 import importlib.util
+import io
+import json
 import pathlib
 import sys
 import tempfile
 import unittest
+from unittest import mock
 
 
 PLUGIN_ROOT = pathlib.Path(__file__).resolve().parents[1] / "plugins" / "apxm"
@@ -164,6 +167,80 @@ class ReadinessClassificationTests(unittest.TestCase):
             warnings: list[str] = []
             self.assertEqual(self.doctor.discover_apxm_cwd(str(root), warnings), str(root.resolve()))
             self.assertEqual(warnings, [])
+
+    def test_main_collects_templates_and_registered_agents(self) -> None:
+        def fake_which(executable: str) -> str | None:
+            paths = {
+                "apxm": "/usr/bin/apxm",
+                "dekk": "/usr/bin/dekk",
+                "fixture-agent": "/usr/bin/fixture-agent",
+            }
+            return paths.get(executable)
+
+        def fake_run(argv: list[str], **_: object) -> object:
+            if argv == ["apxm", "doctor"]:
+                return self.doctor.CommandResult(True, argv, 0, "ok", "")
+            if argv == ["apxm", "agent", "templates", "--json"]:
+                return self.doctor.CommandResult(
+                    True,
+                    argv,
+                    0,
+                    json.dumps(
+                        {
+                            "templates": [
+                                {
+                                    "name": "template-worker",
+                                    "command": "fixture-agent --acp",
+                                    "capabilities": ["read", "graph_author"],
+                                }
+                            ]
+                        }
+                    ),
+                    "",
+                )
+            if argv == ["apxm", "agent", "list", "--json"]:
+                return self.doctor.CommandResult(
+                    True,
+                    argv,
+                    0,
+                    json.dumps(
+                        {
+                            "agents": [
+                                {
+                                    "name": "registered-worker",
+                                    "command": "fixture-agent --acp",
+                                    "verified": True,
+                                }
+                            ]
+                        }
+                    ),
+                    "",
+                )
+            self.fail(f"unexpected command: {argv}")
+
+        args = self.doctor.argparse.Namespace(
+            verify_workers=None,
+            verify_timeout=90,
+            policy=None,
+            apxm_cwd=None,
+        )
+
+        with (
+            mock.patch.object(self.doctor, "parse_args", return_value=args),
+            mock.patch.object(self.doctor.shutil, "which", side_effect=fake_which),
+            mock.patch.object(self.doctor, "run", side_effect=fake_run),
+            mock.patch("sys.stdout", new_callable=io.StringIO) as stdout,
+        ):
+            self.assertEqual(self.doctor.main(), 0)
+
+        output = json.loads(stdout.getvalue())
+        self.assertEqual(output["agent_templates"][0]["name"], "template-worker")
+        self.assertEqual(output["registered_agent_profiles"][0]["name"], "registered-worker")
+        workers_by_id = {worker["worker_id"]: worker for worker in output["workers"]}
+        self.assertEqual(workers_by_id["template-worker"]["source"], "template")
+        self.assertTrue(workers_by_id["template-worker"]["executable_present"])
+        self.assertEqual(workers_by_id["registered-worker"]["source"], "registered")
+        self.assertTrue(workers_by_id["registered-worker"]["verified"])
 
 
 if __name__ == "__main__":

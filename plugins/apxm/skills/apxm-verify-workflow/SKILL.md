@@ -18,15 +18,21 @@ python3 "$PLUGIN_ROOT/scripts/apxm_doctor.py"
 
 If `apxm` is not installed globally and Dekk needs the APXM worktree, set `APXM_WORKTREE=/path/to/apxm` or pass `--apxm-cwd /path/to/apxm`.
 
-3. Prefer APXM verification surfaces when present. Use the same APXM command route the doctor selected (`apxm` or `dekk apxm`):
+3. Use APXM's current validation and evidence surfaces. Use the same APXM command route the doctor selected (`apxm` or `dekk apxm`):
 
 ```bash
-dekk apxm verify <trace-or-artifact>
-dekk apxm trace show <trace-id> --json
-dekk apxm artifacts list <trace-id> --json
+dekk apxm validate <workflow-or-graph.air>
+dekk apxm analyze <workflow-or-graph.air>
+dekk apxm session inspect <session-id-or-path> --json
+dekk apxm rollout replay <thread_id>
 ```
 
-4. If APXM verification commands are unavailable, inspect local artifacts and report `not_apxm_verified`.
+Use `dekk apxm workflow validate <workflow.apxmw>` and `dekk apxm workflow
+analyze <workflow.apxmw>` for workflow files. When following server-owned work
+through MCP, use `apxm_trace_fetch`, `apxm_workflow_status`, and
+`apxm_workflow_events` if the target server advertises them.
+
+4. If APXM verification evidence is unavailable, inspect local artifacts and report `not_apxm_verified`.
 
 ## Verification Checklist
 
