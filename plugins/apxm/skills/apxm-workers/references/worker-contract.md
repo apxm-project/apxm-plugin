@@ -12,7 +12,7 @@
   "executable": "worker-alpha",
   "executable_present": true,
   "verified": true,
-  "capabilities": ["read", "write", "execute", "critique", "graph_author"],
+  "route_capabilities": ["read", "write", "execute", "critique", "workflow_author"],
   "capability_servers": [],
   "budget": {
     "budget_usd": 1.0,
@@ -36,7 +36,7 @@
 {
   "worker_roles": {
     "planner": {
-      "required_capabilities": ["read", "graph_author"],
+      "required_capabilities": ["read", "workflow_author"],
       "min_count": 1
     },
     "executor": {
@@ -61,12 +61,12 @@
 
 `reviewer` is a read/evidence role. Use `critic` when the policy requires explicit dissent or adversarial critique. `preferred_workers` is a tie-breaker, not an admission bypass; APXM must still verify the route and satisfy policy.
 
-## Graph Authorship
+## Workflow Authorship
 
 Workers can propose:
 
-- APXM `PlanGraph` JSON.
-- Python frontend workflow source using APXM graph APIs.
+- Canonical APXM AIR.
+- Python frontend workflow source that emits AIR.
 - A child workflow request.
 
 APXM must validate and compile the proposal before execution.

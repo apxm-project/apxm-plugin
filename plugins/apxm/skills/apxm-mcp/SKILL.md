@@ -27,23 +27,23 @@ Use this skill for APXM MCP adapter work. The MCP layer is an interface, not the
 ## Existing Useful Surface
 
 - `apxm_validate`, `apxm_compile`, `apxm_ops_list`: compile-only MCP tools.
-- `apxm_run`: compile and run canonical AIR through server admission.
-- `apxm_plan_as_graph`: natural-language task to validated plan graph, optionally executed.
-- `apxm_trace_fetch`, `apxm_capability_list`, `apxm_skills_list`, `apxm_skill_call`: trace, capability, and skill surfaces.
-- `apxm_workflow_start`, `apxm_workflow_status`, `apxm_workflow_events`, `apxm_workflow_cancel`: native workflow control when the APXM server advertises them.
-- `apxm_orchestrate_start`: native one-pass execution of an explicit bounded worker DAG when the APXM HTTP MCP server advertises it.
+- `run`: compile and run canonical AIR through server admission.
+- `prompt_as_workflow`: natural-language task to canonical AIR workflow, optionally executed.
+- `trace_fetch`, `capability_list`, `skills_list`, `skill_call`: trace, capability, and skill surfaces.
+- `workflow_start`, `workflow_status`, `workflow_events`, `workflow_cancel`: native workflow control when the APXM server advertises them.
+- `goal_start`: native one-pass execution of an explicit bounded worker workflow when the APXM HTTP MCP server advertises it.
 
 ## Workflow Launch Pattern
 
-When the target server lists `apxm_orchestrate_start`, use it after a
+When the target server lists `goal_start`, use it after a
 caller/planner has resolved one bounded pass: call it once with `task`, optional
 `context/event/trigger`, bounded `workers`, and workspace policy. For real ACP workers, include
-`admit_capabilities: ["SPAWN_AGENT"]`. Store the returned `execution_id`,
-`session_id`, `session_dir`, `workflow_path`, and `bundle_dir`; then follow with
-`apxm_workflow_events` and `apxm_workflow_status`, and stop with
-`apxm_workflow_cancel`. Do not manually prompt workers after start.
+`admit_capabilities: ["SPAWN_AGENT"]`. Store the returned `goal_id`,
+`execution_id`, `session_id`, `session_dir`, `workflow_path`, and `bundle_dir`;
+then follow with `goal_events` and `goal_status`, and stop with `goal_cancel`.
+Do not manually prompt workers after start.
 
-When the target server lists the native workflow tools, launch a `.apxmw` with `apxm_workflow_start`, then follow with `apxm_workflow_status` and `apxm_workflow_events`, and interrupt with `apxm_workflow_cancel`. Treat the returned `execution_id` as the live control handle and `session_dir` as the offline inspection handle.
+When the target server lists the native workflow tools, launch a `.apxmw` with `workflow_start`, then follow with `workflow_status` and `workflow_events`, and interrupt with `workflow_cancel`. Treat the returned `execution_id` as the live control handle and `session_dir` as the offline inspection handle.
 
 Event consumers should keep workflow/session state from `workflow_started`,
 `workflow_step_started`, `workflow_step_completed`, and `workflow_finished`.
@@ -54,7 +54,7 @@ inspect; the top-level MCP `session_dir` remains the server-owned run session.
 [Agent]
    |
    v
-[HTTP MCP apxm_workflow_start]
+[HTTP MCP workflow_start]
    |
    v
 [APXM server validates workflow request + policy]
@@ -66,16 +66,16 @@ inspect; the top-level MCP `session_dir` remains the server-owned run session.
 [workflow session dir + child step sessions]
 ```
 
-If the target server does not list `apxm_workflow_start`, report the missing native workflow control surface. Use `dekk apxm workflow execute <workflow.apxmw> --background --session-root <dir> --json` only when a detached local CLI workflow is desired or the server control plane is unavailable.
+If the target server does not list `workflow_start`, report the missing native workflow control surface. Use `dekk apxm workflow execute <workflow.apxmw> --background --session-root <dir> --json` only when a detached local CLI workflow is desired or the server control plane is unavailable.
 
 ## Workflow Tool Surface
 
 Only call these tools when the target APXM server or MCP capability inventory confirms they exist.
 
-- `apxm_workflow_start`: server-owned workflow launch; returns `execution_id`, `session_id`, `session_dir`.
-- `apxm_workflow_status`: summary from run/session records.
-- `apxm_workflow_events`: retained events or follow cursor.
-- `apxm_workflow_cancel`: cancel by server-owned `execution_id`.
+- `workflow_start`: server-owned workflow launch; returns `execution_id`, `session_id`, `session_dir`.
+- `workflow_status`: summary from run/session records.
+- `workflow_events`: retained events or follow cursor.
+- `workflow_cancel`: cancel by server-owned `execution_id`.
 
 For readiness and worker roster checks, use local preflight
 `scripts/apxm_doctor.py` and APXM agent registry commands such as

@@ -1,6 +1,6 @@
 ---
 name: apxm-skill-to-workflow
-description: Use when converting a Codex skill, Claude/Superpowers-style skill, or local agent procedure into an APXM workflow pack with graph, policy, compile targets, verification, and conversion notes.
+description: Use when converting a Codex skill, Claude/Superpowers-style skill, or local agent procedure into an APXM workflow pack with AIR source, policy, compile targets, verification, and conversion notes.
 ---
 
 # APXM Skill To Workflow
@@ -36,9 +36,9 @@ Skip commands for artifacts that the conversion did not create.
 Create these files in the target directory:
 
 - `skill.toml`: source skill metadata, trigger, required inputs, and policy defaults.
-- `workflow.py`: APXM Python frontend workflow or graph builder.
-- `skill.air`: compiled or hand-authored canonical APXM graph target when possible.
-- `workflow.apxmw`: APXM multi-step workflow file when the source skill maps better to workflow steps than a single graph.
+- `workflow.py`: APXM Python frontend workflow source.
+- `skill.air`: compiled or hand-authored canonical APXM workflow target when possible.
+- `workflow.apxmw`: APXM multi-step workflow file when the source skill maps better to workflow steps than a single AIR unit.
 - `conversion_report.json`: decisions, unsupported features, validation status, and next action.
 
 ## Conversion Rules

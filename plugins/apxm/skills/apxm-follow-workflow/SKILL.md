@@ -36,17 +36,20 @@ If `apxm` is not installed globally and Dekk needs the APXM worktree, set `APXM_
 5. For live workflow/run progress, use:
 
 ```text
-apxm_orchestrate_start -> execution_id + workflow_path + bundle_dir
-apxm_workflow_start   -> execution_id + session_dir
-apxm_workflow_status  -> current status/result/error
-apxm_workflow_events  -> retained event page with next_seq
-apxm_workflow_cancel  -> cancel in-flight execution_id
+goal_start      -> goal_id + execution_id + workflow_path + bundle_dir
+goal_status     -> current aggregate goal status
+goal_events     -> retained goal event page with next_seq
+goal_cancel     -> cancel in-flight goal_id
+workflow_start  -> execution_id + session_dir
+workflow_status -> current workflow status/result/error
+workflow_events -> retained workflow event page with next_seq
+workflow_cancel -> cancel in-flight execution_id
 ```
 
-If the run was started by `apxm_orchestrate_start`, do not restart the generated
-workflow. Use the returned `execution_id` with `apxm_workflow_events`, advance
-`since` to `next_seq`, wake on `orchestrator_wake` or terminal events, and
-confirm completion with `apxm_workflow_status`.
+If the run was started by `goal_start`, do not restart the generated workflow.
+Use the returned `goal_id` with `goal_events`, advance `since` to `next_seq`,
+wake on `orchestrator_wake` or terminal goal status, and confirm completion
+with `goal_status`. Use `execution_id` only for workflow drill-down.
 
 When following events, preserve the workflow/session handles:
 `workflow_started.payload.session_dir` is the workflow-root session,
@@ -119,10 +122,10 @@ If Dekk does not expose `workflow`, call the APXM binary directly from the APXM 
 - Do not confuse workflow following with workflow execution. Watching/replay is observability.
 - Live `watch` requires `apxm-server` and a valid `thread_id`.
 - Server/MCP-started work should be controlled by server-owned IDs; do not invent shell process management around it.
-- Prefer native `apxm_workflow_start`, `apxm_workflow_status`, `apxm_workflow_events`, and `apxm_workflow_cancel` when MCP inventory lists them; use local background workflow handles only when the server control plane is unavailable or the caller explicitly wants detached CLI execution.
+- Prefer native `workflow_start`, `workflow_status`, `workflow_events`, and `workflow_cancel` when MCP inventory lists them; use local background workflow handles only when the server control plane is unavailable or the caller explicitly wants detached CLI execution.
 - `rollout replay` and `rollout archive` work offline from rollout storage.
 - `session inspect` works from execution session output even when no rollout was recorded.
-- Workflow-root sessions are the canonical offline follow handle for `.apxmw` runs; child step sessions provide graph-level detail.
+- Workflow-root sessions are the canonical offline follow handle for `.apxmw` runs; child step sessions provide workflow-step detail.
 - Background `.apxmw` runs should be launched by APXM itself, not by shelling out with `&`, so APXM can return `pid`, `session_dir`, `log_file`, and record `background.json`.
 - Prefer `rollout archive` when the user needs reproducibility or handoff.
 - Include the `thread_id`, server base, rollout source, and archive path in the final answer.

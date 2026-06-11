@@ -1,13 +1,13 @@
 ---
 name: apxm-orchestrate
-description: Use when a task should be turned into a bounded APXM worker DAG or workflow, executed through APXM, and followed through workflow events/status. Use for large code, research, analysis, or implementation workflows where APXM/Dekk should remain the execution authority.
+description: Use when a task should become a bounded APXM worker workflow, execute through APXM, and be followed through goal events/status. Use for large code, research, analysis, or implementation workflows where APXM/Dekk should remain the execution authority.
 ---
 
 # APXM Orchestrate
 
 Use this skill to create one bounded APXM pass, execute it through APXM, and
 wait through APXM events/status. Do not simulate a worker swarm in prompt text
-when APXM can own the graph, policy checks, worker admission, execution, and
+when APXM can own the workflow, policy checks, worker admission, execution, and
 trace.
 
 ## Quick Start
@@ -48,51 +48,49 @@ Use `--event` and `--trigger` when an external event caused the pass, and
 `--dry-run` when the first step should only materialize and validate the
 workflow bundle. Worker profile names are policy bindings, not requirements.
 
-6. If the target APXM HTTP MCP inventory lists `apxm_orchestrate_start`, use
-   the native server-owned path for an agent-created worker DAG:
+6. If the target APXM HTTP MCP inventory lists `goal_start`, use
+   the native server-owned path for an agent-created worker workflow:
 
 ```text
-apxm_orchestrate_start -> execution_id + workflow_path + bundle_dir
-apxm_workflow_events   -> page retained events with since/next_seq
-apxm_workflow_status   -> confirm running/succeeded/failed
-apxm_workflow_cancel   -> stop by execution_id
+goal_start  -> goal_id + execution_id + workflow_path + bundle_dir
+goal_events -> page retained goal events with since/next_seq
+goal_status -> confirm running/succeeded/failed/cancelled
+goal_cancel -> stop by goal_id
 ```
 
-Call `apxm_orchestrate_start` once only after the caller/planner has resolved a
-bounded `workers` DAG for this pass. Include optional `context`, `event`,
-`trigger`, and an explicit `workspace` policy. For real ACP workers, include
-`admit_capabilities: ["SPAWN_AGENT"]`. After start, do not manually prompt
-workers; APXM owns worker spawn, fan-in, gate/eval, feedback, events, and
-cancellation for that pass.
+Call `goal_start` once after the caller has either omitted `workers` for
+server-owned planning or provided explicit bounded workers. Include optional
+`context`, `event`, `trigger`, and a `workspace` policy. For real ACP workers,
+include `admit_capabilities: ["SPAWN_AGENT"]`. After start, do not manually
+prompt workers; APXM owns worker spawn, fan-in, gate/eval, feedback, events,
+and cancellation for that pass.
 
-Observe workflow lifecycle events in `apxm_workflow_events`: `workflow_started`,
-`workflow_step_started`, `workflow_step_completed`, and `workflow_finished`.
-Use `workflow_started.payload.session_dir` as the workflow-root session and each
-`workflow_step_completed.payload.session_dir` as the child step session handle.
-Wake the caller/planner only on `orchestrator_wake` or terminal workflow events.
+Observe aggregate lifecycle events in `goal_events`, and use the returned
+`execution_id` only for workflow drill-down when needed. Wake the caller on
+`orchestrator_wake` or terminal goal status.
 
-7. If an executable canonical APXM graph already exists, prefer:
+7. If an executable canonical APXM AIR workflow already exists, prefer:
 
 ```bash
 dekk apxm execute <workflow.air>
 ```
 
-8. If neither `dekk apxm goal` nor `apxm_orchestrate_start` is available, stop with `setup_required` and the missing control surface. For reusable work that already has an explicit workflow artifact, use the compile/execute path on canonical `.air` or checked-in `.apxmw`. Do not pass PlanGraph JSON directly to `dekk apxm validate`; current APXM validation expects canonical `.air`.
+8. If neither `dekk apxm goal` nor `goal_start` is available, stop with `setup_required` and the missing control surface. For reusable work that already has an explicit workflow artifact, use the compile/execute path on canonical `.air` or checked-in `.apxmw`.
 
 ## Delegation Rules
 
 - Keep delegated prompts short. Send objectives, constraints, inputs, expected artifacts, and success checks.
 - Use APXM worker discovery, not hard-coded assumptions about Claude, Codex, or any other host.
 - Model the workflow by roles (`planner/orchestrator`, `executor`, `reviewer`, `critic`, `verifier`, `synthesizer`) and let APXM/policy bind those roles to verified worker profiles.
-- Treat worker-authored graphs as proposals until APXM validates and adopts them.
-- Use `apxm_plan_as_graph` for graph synthesis, not for bypassing external-worker admission. External-worker fan-out belongs in `dekk apxm goal` or `apxm_orchestrate_start`.
+- Treat worker-authored workflows as proposals until APXM validates and adopts them.
+- Use `prompt_as_workflow` for AIR workflow synthesis, not for bypassing external-worker admission. External-worker fan-out belongs in `dekk apxm goal` or `goal_start`.
 - Require a budget policy before expensive or headless fan-out.
 - Prefer fan-out for independent subtasks and fan-in for synthesis, critique, merge, or verification.
 - Persist trace IDs and artifact paths in the final answer.
 
 ## When To Load References
 
-- Load `references/workflow-contract.md` when designing the graph or explaining the orchestration flow.
+- Load `references/workflow-contract.md` when designing the workflow or explaining the orchestration flow.
 - Load `references/policy-schema.md` when creating a policy object.
 
 ## Result Shape

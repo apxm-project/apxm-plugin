@@ -9,7 +9,7 @@ Use compact JSON policies. Include only fields that matter for the run.
   "max_parallelism": 4,
   "worker_roles": {
     "planner": {
-      "required_capabilities": ["read", "graph_author"],
+      "required_capabilities": ["read", "workflow_author"],
       "min_count": 1
     },
     "executor": {
@@ -42,7 +42,7 @@ Use compact JSON policies. Include only fields that matter for the run.
   "kill_switch": {
     "enabled": true,
     "on_budget_exceeded": "terminate_children",
-    "on_repeated_failure": "stop_graph"
+    "on_repeated_failure": "stop_workflow"
   }
 }
 ```

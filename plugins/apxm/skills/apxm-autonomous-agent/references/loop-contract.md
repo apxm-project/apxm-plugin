@@ -20,7 +20,7 @@ Use this contract when turning an idea like "run an agent in the background and 
           |
           v
 [APXM runtime]
-   graph execution, autonomous nodes, workflow spawn,
+   AIR execution, autonomous nodes, workflow spawn,
    worker spawn/prompt/observe/stop, tool calls
           |
           v
@@ -35,12 +35,12 @@ The plugin only teaches agents how to request this. APXM server, APXM OS, Dekk, 
 | Caller | Calls | Purpose | Follow/stop surface |
 |---|---|---|---|
 | APXM OS provider connector | `POST /v1/skills/{id}/execute` | Event-triggered loop from Discord, GitHub, cron, files, queues, or webhooks | `/v1/runs/{execution_id}/events`, checkpoint resume, run cancel |
-| Agent host through MCP | Existing APXM MCP tools such as `apxm_orchestrate_start`, `apxm_skill_call`, `apxm_run`, `apxm_trace_fetch` | Agent-initiated bounded orchestration, compile/run/follow when a human or parent agent asks | MCP result plus server run events when available |
+| Agent host through MCP | Existing APXM MCP tools such as `goal_start`, `skill_call`, `run`, `trace_fetch` | Agent-initiated bounded orchestration, compile/run/follow when a human or parent agent asks | MCP result plus server run events when available |
 | Dekk/APXM CLI | `dekk apxm workflow ...`, `dekk apxm session ...`, `dekk apxm rollout ...` | Local developer testing and detached workflow follow handles | session directory, process list, rollout/session inspect |
 | Frontend | REST/SSE or generated workflow/trigger artifacts | Author specs and observe runs | server events, checkpoints, cancellation |
-| Worker agent | APXM worker prompt/spawn route selected by policy | Execute one assigned role, propose a graph, review, or verify | APXM runtime/process-table events, worker artifact |
+| Worker agent | APXM worker prompt/spawn route selected by policy | Execute one assigned role, propose a workflow, review, or verify | APXM runtime/process-table events, worker artifact |
 
-No caller should bypass APXM validation/admission for worker-authored graphs or hide a long-running shell loop outside APXM.
+No caller should bypass APXM validation/admission for worker-authored workflows or hide a long-running shell loop outside APXM.
 
 ## Canonical Loop
 
@@ -123,7 +123,7 @@ Minimum fields: `source`, `kind`, `subject`, `idempotency_key`, and `payload`.
     }
   },
   "eval": {
-    "type": "graph|skill|builtin",
+    "type": "workflow|skill|builtin",
     "criteria": [
       "artifact exists",
       "declared checks pass",
@@ -156,7 +156,7 @@ Split work by role and artifact, not by dumping one large prompt into every work
         v
 [Classify required roles]
         |
-        +--> planner: graph or task split proposal
+        +--> planner: workflow or task split proposal
         +--> executor: bounded implementation/action
         +--> reviewer: critique and dissent
         +--> verifier: checks and evidence
@@ -178,13 +178,13 @@ Split work by role and artifact, not by dumping one large prompt into every work
         +--> budget, timeout, stop conditions
         |
         v
-[APXM executes graph/workflow and records role outputs]
+[APXM executes workflow and records role outputs]
         |
         v
 [Fan-in eval/synthesis]
 ```
 
-Worker output should carry `role`, `worker_id`, `node_id` or step id, `status`, `artifact_refs`, `evidence_refs`, `warnings`, and `next_action`. A worker-authored graph is only a proposal until APXM validates, compiles, and admits it.
+Worker output should carry `role`, `worker_id`, `node_id` or step id, `status`, `artifact_refs`, `evidence_refs`, `warnings`, and `next_action`. A worker-authored workflow is only a proposal until APXM validates, compiles, and admits it.
 
 ## Eval Contract
 
@@ -215,7 +215,7 @@ Only `needs_more` may automatically loop, and only while budget, timeout, and it
 [APXM OS calls APXM server skill execution]
           |
           v
-[server returns execution_id]
+[server returns goal_id and execution_id]
           |
           +--> [follow events]
           |
@@ -230,14 +230,14 @@ The loop should be inspectable through APXM server run events or APXM workflow s
 
 ## Native Orchestration Pass
 
-Use `apxm_orchestrate_start` when an agent has resolved one bounded event/task
-into an explicit worker DAG and wants APXM to execute it:
+Use `goal_start` when an agent has resolved one bounded event/task
+into an explicit worker workflow and wants APXM to execute it:
 
 ```text
 [caller/planner agent]
         |
         v
-[apxm_orchestrate_start once with explicit workers]
+[goal_start once with explicit workers]
         |
         v
 [orchestrator_sleep event]
@@ -252,8 +252,9 @@ into an explicit worker DAG and wants APXM to execute it:
 [status confirms succeeded/failed]
 ```
 
-The caller/planner should store `execution_id`, `workflow_path`, `bundle_dir`, and
-`session_dir`, then page `apxm_workflow_events` with `since = next_seq`. It
+The caller/planner should store `goal_id`, `execution_id`, `workflow_path`,
+`bundle_dir`, and `session_dir`, then page `goal_events` with
+`since = next_seq`. It
 should not manually prompt workers after start. Real ACP workers require explicit
 `admit_capabilities: ["SPAWN_AGENT"]`; provider names are policy bindings, not
 requirements.
@@ -303,14 +304,17 @@ Each loop spec should define `interrupt_policy` with `on_cancel`, `on_timeout`, 
 Existing or target MCP tools that may be useful after capability inventory confirms them:
 
 ```text
-apxm_skill_call
-apxm_run
-apxm_trace_fetch
-apxm_workflow_start
-apxm_workflow_status
-apxm_workflow_events
-apxm_workflow_cancel
-apxm_orchestrate_start
+skill_call
+run
+trace_fetch
+workflow_start
+workflow_status
+workflow_events
+workflow_cancel
+goal_start
+goal_status
+goal_events
+goal_cancel
 ```
 
 ## Anti-Patterns
@@ -318,7 +322,7 @@ apxm_orchestrate_start
 - Treating Claude, Codex, or any provider as required infrastructure.
 - Running a hidden shell loop outside APXM and calling it autonomous.
 - Triggering actions without dedupe, budget, timeout, and cancel controls.
-- Hiding graph semantics or sandbox policy inside provider connector code.
+- Hiding workflow semantics or sandbox policy inside provider connector code.
 - Adding APXM server trigger APIs before APXM OS sidecar-to-skill execution is exhausted.
 - Letting MCP tools contain orchestration business logic.
-- Executing worker-authored graphs without APXM validation and admission.
+- Executing worker-authored workflows without APXM validation and admission.

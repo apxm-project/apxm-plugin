@@ -64,9 +64,9 @@ class ReadinessClassificationTests(unittest.TestCase):
         workers = ({"worker_id": "worker-a"}, {"worker_id": "worker-b", "budget_ready": True})
         self.assertEqual(self.classify(True, *workers), ("ready", 4))
 
-    def test_verified_worker_capabilities_include_execute(self) -> None:
-        capabilities = self.doctor.capabilities_for(
-            {"capabilities": ["read", "graph_author"]},
+    def test_verified_worker_route_capabilities_include_execute(self) -> None:
+        capabilities = self.doctor.route_capabilities_for(
+            {"route_capabilities": ["read", "workflow_author"]},
             executable_present=True,
             verified=True,
         )
@@ -98,17 +98,17 @@ class ReadinessClassificationTests(unittest.TestCase):
             {"alpha"},
         )
 
-    def test_capability_index_uses_arbitrary_worker_ids(self) -> None:
+    def test_route_capability_index_uses_arbitrary_worker_ids(self) -> None:
         workers = [
-            {"worker_id": "alpha", "capabilities": ["read", "graph_author"], "verified": False},
-            {"worker_id": "beta", "capabilities": ["read", "execute"], "verified": True},
+            {"worker_id": "alpha", "route_capabilities": ["read", "workflow_author"], "verified": False},
+            {"worker_id": "beta", "route_capabilities": ["read", "execute"], "verified": True},
         ]
         self.assertEqual(
-            self.doctor.index_workers_by_capability(workers)["read"],
+            self.doctor.index_workers_by_route_capability(workers)["read"],
             ["alpha", "beta"],
         )
         self.assertEqual(
-            self.doctor.index_workers_by_capability(workers, verified_only=True)["execute"],
+            self.doctor.index_workers_by_route_capability(workers, verified_only=True)["execute"],
             ["beta"],
         )
 
@@ -116,20 +116,20 @@ class ReadinessClassificationTests(unittest.TestCase):
         workers = [
             {
                 "worker_id": "alpha",
-                "capabilities": ["read", "graph_author", "execute"],
+                "route_capabilities": ["read", "workflow_author", "execute"],
                 "executable_present": True,
                 "verified": True,
             },
             {
                 "worker_id": "beta",
-                "capabilities": ["read", "execute"],
+                "route_capabilities": ["read", "execute"],
                 "executable_present": True,
                 "verified": True,
             },
         ]
         policy = {
             "worker_roles": {
-                "planner": {"required_capabilities": ["read", "graph_author"]},
+                "planner": {"required_capabilities": ["read", "workflow_author"]},
                 "executor": {"required_capabilities": ["execute"]},
             },
             "preferred_workers": {
@@ -146,7 +146,7 @@ class ReadinessClassificationTests(unittest.TestCase):
         workers = [
             {
                 "worker_id": "alpha",
-                "capabilities": ["read", "graph_author", "execute"],
+                "route_capabilities": ["read", "workflow_author", "execute"],
                 "executable_present": True,
                 "verified": True,
             },
@@ -191,7 +191,7 @@ class ReadinessClassificationTests(unittest.TestCase):
                                 {
                                     "name": "template-worker",
                                     "command": "fixture-agent --acp",
-                                    "capabilities": ["read", "graph_author"],
+                                    "route_capabilities": ["read", "workflow_author"],
                                 }
                             ]
                         }

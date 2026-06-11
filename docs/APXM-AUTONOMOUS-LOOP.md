@@ -26,7 +26,7 @@ This is a non-authoritative target contract for APXM-managed autonomous loops. T
              +----------------------------+----------------------------+
              |                            |                            |
              v                            v                            v
-         [APXM skill]                 [AIR graph]              [workflow/task]
+         [APXM skill]                 [AIR workflow]           [workflow/task]
              |                            |                            |
              +----------------------------+----------------------------+
                                           |
@@ -86,7 +86,7 @@ For the first real implementation, APXM OS should own external provider listener
 - If available in the target APXM build: task queues through `/v1/tasks`, queue claim, leases, and completion.
 - If available in the target APXM build: checkpoints for pause/resume flows.
 - If available in the target APXM build: agent registry routes such as `/v1/agents`, `/v1/agents/register`, and `/v1/receive`.
-- If available in the target APXM build: MCP tools such as `apxm_run`, `apxm_plan_as_graph`, `apxm_orchestrate_start`, `apxm_workflow_start`, `apxm_workflow_status`, `apxm_workflow_events`, `apxm_workflow_cancel`, `apxm_trace_fetch`, `apxm_capability_list`, `apxm_skills_list`, `apxm_skill_get`, `apxm_skill_validate`, and `apxm_skill_call`.
+- If available in the target APXM build: MCP tools such as `run`, `prompt_as_workflow`, `goal_start`, `goal_status`, `goal_events`, `goal_cancel`, `workflow_start`, `workflow_status`, `workflow_events`, `workflow_cancel`, `trace_fetch`, `capability_list`, `skills_list`, `skill_get`, `skill_validate`, and `skill_call`.
 - If available in the target APXM build: runtime `AUTONOMOUS`, `mode=recv`, `WORKFLOW_SPAWN`, and `SPAWN_AGENT`.
 - If available in the target APXM OS build: trigger sidecars such as `triggers.toml`.
 - If available in the target Dekk/APXM build: local `.apxmw` background workflow handles.
@@ -142,14 +142,14 @@ The heavy context should live in APXM artifacts and skill packs, not in the prom
    |
    +--> [APXM OS] -------> [provider event -> skill execute]
    |
-   +--> [Agent via MCP] -> [apxm_orchestrate_start or tool/skill call]
+   +--> [Agent via MCP] -> [goal_start or tool/skill call]
    |
    +--> [Frontend] -----> [author artifacts, observe run]
    |
    +--> [Dekk CLI] -----> [local validate/execute/follow]
                            |
                            v
-                    [APXM graph/workflow]
+                    [APXM workflow]
                            |
           +----------------+----------------+
           |                |                |
@@ -162,10 +162,10 @@ The heavy context should live in APXM artifacts and skill packs, not in the prom
                     [eval + synthesis]
 ```
 
-Plans should split into roles with compact worker briefs: objective, input refs, constraints, expected artifact, evidence/check command, budget, timeout, and stop conditions. APXM should validate worker-authored graphs before execution.
+Plans should split into roles with compact worker briefs: objective, input refs, constraints, expected artifact, evidence/check command, budget, timeout, and stop conditions. APXM should validate worker-authored workflows before execution.
 
-For a bounded agent-initiated pass, the agent should resolve an explicit worker
-DAG, call `apxm_orchestrate_start` once, store the returned `execution_id`, then sleep.
+For a bounded agent-initiated pass, the agent should call `goal_start` once,
+store the returned `goal_id` and `execution_id`, then sleep.
 APXM emits `orchestrator_sleep` after accepting ownership and
 `orchestrator_wake` before terminal workflow completion or cancellation.
 
@@ -212,7 +212,7 @@ If a path has no follow or stop handle, it is not a governed autonomous loop.
     "target": "discord-project-curate",
     "transport": "POST /v1/skills/{id}/execute",
     "role_bindings": {
-      "planner": { "required_capabilities": ["read", "graph_author"] },
+      "planner": { "required_capabilities": ["read", "workflow_author"] },
       "executor": { "required_capabilities": ["execute"] },
       "verifier": { "required_capabilities": ["execute"] }
     }

@@ -65,7 +65,7 @@ Use `python3 "$PLUGIN_ROOT/scripts/apxm_doctor.py" --verify-workers <profiles>` 
              +------------------------+------------------------+
              |                        |                        |
              v                        v                        v
-          [skill]                  [graph]              [workflow/task]
+          [skill]                   [AIR]               [workflow/task]
              |                        |                        |
              +------------------------+------------------------+
                                       |
@@ -85,8 +85,8 @@ Use `python3 "$PLUGIN_ROOT/scripts/apxm_doctor.py" --verify-workers <profiles>` 
 
 Confirm these with `apxm_doctor.py`, APXM capability inventory, or the target server before claiming they exist.
 
-- Server/MCP: `apxm_run`, `apxm_plan_as_graph`, `apxm_orchestrate_start`, `apxm_workflow_start`, `apxm_workflow_status`, `apxm_workflow_events`, `apxm_workflow_cancel`, `apxm_trace_fetch`, `apxm_capability_list`, `apxm_skills_list`, `apxm_skill_get`, `apxm_skill_validate`, and `apxm_skill_call`.
-- Native orchestration MCP: `apxm_orchestrate_start` for one explicit bounded worker DAG followed by `apxm_workflow_events`, `apxm_workflow_status`, and `apxm_workflow_cancel` for wake and interruption.
+- Server/MCP: `run`, `prompt_as_workflow`, `goal_start`, `goal_status`, `goal_events`, `goal_cancel`, `workflow_start`, `workflow_status`, `workflow_events`, `workflow_cancel`, `trace_fetch`, `capability_list`, `skills_list`, `skill_get`, `skill_validate`, and `skill_call`.
+- Native orchestration MCP: `goal_start` for a bounded worker workflow followed by `goal_events`, `goal_status`, and `goal_cancel` for wake and interruption.
 - Server REST/SSE: `/v1/runs`, `/v1/runs/{execution_id}/events`, `/v1/runs/{execution_id}/events/stream`, `/v1/runs/{execution_id}/cancel`, `/v1/tasks`, `/v1/checkpoints`, `/v1/agents/register`, `/v1/receive`, `/v1/mcp`.
 - Runtime: `AUTONOMOUS` plan/action/eval loops, `mode=recv` event polling, tool-enabled autonomous turns, `WORKFLOW_SPAWN`, `SPAWN_AGENT`, task claiming, checkpoints.
 - APXM OS: external provider listeners, trigger sidecars such as Discord `triggers.toml`, dedupe, retry, and event-to-skill routing.
@@ -95,12 +95,12 @@ Confirm these with `apxm_doctor.py`, APXM capability inventory, or the target se
 ## Rules
 
 - Prefer APXM server for long-running autonomous agents when it exposes the needed control surfaces: `execution_id`, `session_id`, retained events, cancellation, session roots, policy, worker admission, and rollout records.
-- For a bounded agent-initiated parallel pass, resolve the worker DAG first, call `apxm_orchestrate_start` once, and then sleep. Wake only through `orchestrator_wake`, terminal workflow events, status, or cancel.
-- Put provider adapters, external listeners, trigger sidecar loading, dedupe, and retry in APXM OS when that connector layer exists. Keep graph semantics and sandbox internals out of connector code.
+- For a bounded agent-initiated parallel pass, call `goal_start` once and then sleep. Wake only through `orchestrator_wake`, terminal goal status, or cancel.
+- Put provider adapters, external listeners, trigger sidecar loading, dedupe, and retry in APXM OS when that connector layer exists. Keep workflow semantics and sandbox internals out of connector code.
 - MCP should be a thin agent-facing control surface. It should not duplicate APXM scheduling, trigger matching, or policy.
 - A background agent must be a server-owned run or an APXM-launched background workflow. Do not use shell backgrounding as the control plane.
 - Every loop must declare `max_iterations`, timeout, budget, cancel path, idempotency key, and approval/checkpoint conditions.
-- Any worker may propose a graph, but APXM must validate, compile, and admit it before execution.
+- Any worker may propose a workflow, but APXM must validate, compile, and admit it before execution.
 - Do not assume Claude and Codex exist. They are example worker bindings only.
 - Feedback should be a structured event, task, memory update, or checkpoint, not hidden prompt recursion outside APXM.
 

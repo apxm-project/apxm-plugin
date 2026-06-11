@@ -1,6 +1,6 @@
 ---
 name: apxm-workers
-description: Use when discovering, validating, selecting, or briefing APXM workers, including asking a verified worker to propose an APXM graph. Use whenever orchestration depends on which agents or LLM hosts are registered and ready.
+description: Use when discovering, validating, selecting, or briefing APXM workers, including asking a verified worker to propose an APXM workflow. Use whenever orchestration depends on which agents or LLM hosts are registered and ready.
 ---
 
 # APXM Workers
@@ -40,15 +40,15 @@ dekk apxm agent templates --json
 - A verified worker must be spawnable, promptable, observable, and stoppable by APXM.
 - Prefer workers by capability and policy fit, not provider preference.
 - Treat Codex, Claude, Gemini, Cursor, Qwen, opencode, custom ACP profiles, and future headless routes as interchangeable candidates until APXM verification and policy select them.
-- Any verified worker may propose a `PlanGraph`, Python frontend workflow, or child workflow.
-- Worker-authored graphs are untrusted until APXM validates, compiles, and admits them.
+- Any verified worker may propose canonical AIR, Python frontend workflow source, or a child workflow.
+- Worker-authored workflows are untrusted until APXM validates, compiles, and admits them.
 - When no verified execution route exists, return a setup plan instead of fabricating execution.
 
 ## Role Routing
 
 Use roles to describe what the workflow needs, then bind workers late:
 
-- `planner` or `planner/orchestrator`: read context and propose a graph or task split.
+- `planner` or `planner/orchestrator`: read context and propose a workflow or task split.
 - `executor`: run the admitted work under APXM policy.
 - `reviewer`: inspect outputs and evidence.
 - `critic`: preserve dissent and adversarial critique when policy requires it.
@@ -74,8 +74,8 @@ Do not send broad repository dumps or hidden reasoning.
 
 ## When To Load References
 
-Load `references/worker-contract.md` when building a worker roster, capability matrix, or graph-authoring request.
+Load `references/worker-contract.md` when building a worker roster, route-capability matrix, or workflow-authoring request.
 
 ## Result Shape
 
-Return: `status`, `tier`, `selected_workers`, `role_routes`, `capability_gaps`, `policy_constraints`, `graph_authoring_allowed`, and `warnings`.
+Return: `status`, `tier`, `selected_workers`, `role_routes`, `capability_gaps`, `policy_constraints`, `workflow_authoring_allowed`, and `warnings`.

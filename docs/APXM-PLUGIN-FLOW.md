@@ -28,7 +28,7 @@ This plugin is the distribution layer for APXM orchestration skills. It teaches 
                     [Bind preferred workers if policy allows]
                                |
                                v
-                    [Create bounded worker DAG]
+                    [Create bounded worker workflow]
                                |
                                v
                     [APXM validates policy]
@@ -39,7 +39,7 @@ This plugin is the distribution layer for APXM orchestration skills. It teaches 
  [Rejected by policy]                      [Policy accepted]
           |                                         |
           v                                         v
- [Return fixable gaps]                  [APXM compiles graph]
+ [Return fixable gaps]                  [APXM compiles workflow AIR]
                                                     |
                                                     v
                                       [APXM schedules workers]
@@ -67,7 +67,7 @@ This plugin is the distribution layer for APXM orchestration skills. It teaches 
 
 ## APXM Responsibilities
 
-- Validate graphs and policy.
+- Validate workflow AIR and policy.
 - Admit workers.
 - Compile workflows.
 - Schedule and supervise agents.
@@ -108,10 +108,10 @@ This plugin is the distribution layer for APXM orchestration skills. It teaches 
       [Follow via events, rollout, or session files]
 ```
 
-Native server tools include `apxm_orchestrate_start`, `apxm_workflow_start`,
-`apxm_workflow_status`, `apxm_workflow_events`, `apxm_workflow_cancel`,
-`apxm_skills_list`, `apxm_skill_get`, `apxm_skill_validate`,
-`apxm_skill_call`, and `apxm_run` when the target server advertises them. The
+Native server tools include `goal_start`, `goal_status`, `goal_events`,
+`goal_cancel`, `workflow_start`, `workflow_status`, `workflow_events`, `workflow_cancel`,
+`skills_list`, `skill_get`, `skill_validate`,
+`skill_call`, and `run` when the target server advertises them. The
 preferred agent path is MCP over APXM server because the server can own many
 concurrent sessions with stable IDs, retained events, cancellation, rollout
 records, and server-controlled session roots. Dekk and the direct CLI remain
@@ -141,11 +141,11 @@ A worker can be any APXM-verified route that supports the requested capability. 
       |
       +--> execute task
       +--> critique output
-      +--> author graph proposal
+      +--> author workflow proposal
       +--> call compiled skill workflow
 ```
 
-Any worker-authored graph remains untrusted until APXM validates, compiles, and admits it.
+Any worker-authored workflow remains untrusted until APXM validates, compiles, and admits it.
 
 ## Role Routing Flow
 
@@ -155,7 +155,7 @@ Any worker-authored graph remains untrusted until APXM validates, compiles, and 
        v
 [Required roles]
        |
-       +--> planner/orchestrator: read + graph_author
+       +--> planner/orchestrator: read + workflow_author
        |
        +--> executor: execute
        |
@@ -180,7 +180,7 @@ Any worker-authored graph remains untrusted until APXM validates, compiles, and 
 [APXM admits verified worker routes]
        |
        v
-[Graph executes with trace, budget, stop policy]
+[Workflow executes with trace, budget, stop policy]
 ```
 
 Example policy binding:
@@ -188,7 +188,7 @@ Example policy binding:
 ```json
 {
   "worker_roles": {
-    "planner": { "required_capabilities": ["read", "graph_author"] },
+    "planner": { "required_capabilities": ["read", "workflow_author"] },
     "executor": { "required_capabilities": ["execute"] }
   },
   "preferred_workers": {
@@ -206,14 +206,14 @@ The same policy shape works with any APXM profile registered by
 Use these words consistently:
 
 - `goal`: human-facing intent, as in `dekk apxm goal "..."`.
-- `task`: the concrete string passed to `apxm_orchestrate_start`.
+- `task`: the concrete string passed to `goal_start`.
 - `objective`: a local artifact/spec field; do not send it to native MCP tools.
 - `planner/orchestrator`: a role that proposes or supervises a bounded pass.
-- `apxm_orchestrate_start`: the server-owned execution primitive for one explicit bounded worker DAG.
+- `goal_start`: the server-owned execution primitive for one explicit bounded worker workflow.
 
 Do not emit a `goal` field into MCP schemas. If an autonomous planner decides
-more workers or critics are needed, it should produce another bounded DAG or
-start another pass through APXM policy, not hide a prompt loop outside APXM.
+more workers or critics are needed, it should start another bounded pass
+through APXM policy, not hide a prompt loop outside APXM.
 
 ## Agent-Created Workflow Flow
 
@@ -227,16 +227,16 @@ start another pass through APXM policy, not hide a prompt loop outside APXM.
 [Discover APXM + verified workers]
           |
           v
-[Create bounded worker DAG or .apxmw]
+[Create bounded worker workflow or .apxmw]
           |
           +--> [CLI caller] -> [dekk apxm goal]
           |
-          +--> [MCP caller] -> [apxm_orchestrate_start]
+          +--> [MCP caller] -> [goal_start]
           |
-          +--> [existing workflow] -> [apxm_workflow_start or dekk apxm workflow execute]
+          +--> [existing workflow] -> [workflow_start or dekk apxm workflow execute]
           |
           v
-[APXM owns execution_id, events, cancel, artifacts]
+[APXM owns goal_id, execution_id, events, cancel, artifacts]
           |
           v
 [Caller sleeps and pages events/status]
@@ -273,7 +273,7 @@ the server unless it reuses these explicit APXM control surfaces.
 [Reusable APXM workflow]
 ```
 
-The original skill stays as the trigger layer. APXM becomes the graph execution layer.
+The original skill stays as the trigger layer. APXM becomes the workflow execution layer.
 
 ## Autonomous Agent Flow
 
@@ -302,7 +302,7 @@ The original skill stays as the trigger layer. APXM becomes the graph execution 
              +-------------------------+-------------------------+
              |                         |                         |
              v                         v                         v
-          [skill]                  [graph]              [workflow/task]
+          [skill]                  [AIR workflow]       [workflow/task]
              |                         |                         |
              +-------------------------+-------------------------+
                                        |
@@ -344,12 +344,12 @@ See `docs/APXM-AUTONOMOUS-LOOP.md` and the `apxm-autonomous-agent` skill for the
              [traceable progress view]
 ```
 
-Server/MCP orchestration mode should use native `apxm_orchestrate_start` when
-the target server lists it: start once, keep `execution_id`, then sleep until
-`apxm_workflow_events` returns `orchestrator_wake` or a terminal event and
-confirm with `apxm_workflow_status`. Server/MCP workflow mode should use native
-`apxm_workflow_start`, `apxm_workflow_status`, `apxm_workflow_events`, and
-`apxm_workflow_cancel` when the target server lists those MCP tools, returning
+Server/MCP orchestration mode should use native `goal_start` when
+the target server lists it: start once, keep `goal_id` and `execution_id`, then sleep until
+`goal_events` returns `orchestrator_wake` or a terminal goal status and
+confirm with `goal_status`. Server/MCP workflow mode should use native
+`workflow_start`, `workflow_status`, `workflow_events`, and
+`workflow_cancel` when the target server lists those MCP tools, returning
 `execution_id`, `session_id`, and `session_dir` so APXM can control many
 concurrent sessions through run events and cancellation. Background local CLI
 workflow mode uses `dekk apxm workflow execute <workflow.apxmw> --background

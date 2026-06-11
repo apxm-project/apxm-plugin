@@ -21,29 +21,29 @@ If `apxm` is not installed globally and Dekk needs the APXM worktree, set `APXM_
 3. Use APXM's current validation and evidence surfaces. Use the same APXM command route the doctor selected (`apxm` or `dekk apxm`):
 
 ```bash
-dekk apxm validate <workflow-or-graph.air>
-dekk apxm analyze <workflow-or-graph.air>
+dekk apxm validate <workflow.air>
+dekk apxm analyze <workflow.air>
 dekk apxm session inspect <session-id-or-path> --json
 dekk apxm rollout replay <thread_id>
 ```
 
 Use `dekk apxm workflow validate <workflow.apxmw>` and `dekk apxm workflow
 analyze <workflow.apxmw>` for workflow files. When following server-owned work
-through MCP, use `apxm_trace_fetch`, `apxm_workflow_status`, and
-`apxm_workflow_events` if the target server advertises them.
+through MCP, use `trace_fetch`, `workflow_status`, and
+`workflow_events` if the target server advertises them.
 
 4. If APXM verification evidence is unavailable, inspect local artifacts and report `not_apxm_verified`.
 
 ## Verification Checklist
 
-- Graph/schema validation passed.
+- AIR/workflow schema validation passed.
 - Policy admission was recorded.
-- Worker outputs map to graph nodes.
+- Worker outputs map to workflow nodes.
 - Required artifacts exist and are non-empty.
 - Tests, linters, or domain checks ran when declared.
 - Budget and timeout data were recorded for headless routes.
 - Fan-in output cites worker evidence and dissent where relevant.
-- No worker-authored child graph executed without APXM validation.
+- No worker-authored child AIR/workflow executed without APXM validation.
 
 ## Result Shape
 

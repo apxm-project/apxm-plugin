@@ -51,10 +51,10 @@ class AutonomousContractTests(unittest.TestCase):
         combined = "\n".join([read(ORCH_SKILL), read(ORCH_CONTRACT), read(PLUGIN_FLOW)])
         for phrase in (
             "dekk apxm goal",
-            "apxm_orchestrate_start",
-            "apxm_workflow_events",
-            "apxm_workflow_status",
-            "bounded worker DAG",
+            "goal_start",
+            "goal_events",
+            "goal_status",
+            "bounded worker workflow",
         ):
             self.assertIn(phrase, combined)
         self.assertIn("Do not add another hidden natural-language planner tool", combined)
@@ -63,7 +63,7 @@ class AutonomousContractTests(unittest.TestCase):
 
     def test_mcp_skill_lists_only_real_workflow_control_tools(self) -> None:
         skill = read(MCP_SKILL)
-        self.assertIn("apxm_workflow_start", skill)
+        self.assertIn("workflow_start", skill)
         self.assertIn("dekk apxm agent list --json", skill)
         self.assertNotIn("`apxm_workers`", skill)
         self.assertNotIn("`apxm_doctor`", skill)
@@ -88,7 +88,7 @@ class AutonomousContractTests(unittest.TestCase):
             self.assertIn(heading, contract)
         self.assertIn("POST /v1/skills/{id}/execute", contract)
         self.assertIn("compact worker briefs", contract)
-        self.assertIn("A worker-authored graph is only a proposal", contract)
+        self.assertIn("A worker-authored workflow is only a proposal", contract)
         self.assertIn("Do not add APXM server trigger registry APIs for MVP", contract)
 
     def test_docs_and_matrix_cover_callers_and_interruptions(self) -> None:

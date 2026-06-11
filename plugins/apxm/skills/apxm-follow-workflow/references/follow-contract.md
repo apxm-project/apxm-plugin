@@ -27,13 +27,13 @@
 
 ## Server/MCP Control
 
-When native orchestration MCP is available, `apxm_orchestrate_start` returns the
-server-owned `execution_id`, generated `workflow_path`, `bundle_dir`, and
-workflow control handles. Follow that run with `apxm_workflow_status`, page
-`apxm_workflow_events`, and stop with `apxm_workflow_cancel`; do not relaunch the
-generated workflow.
+When native goal MCP is available, `goal_start` returns the server-owned
+`goal_id`, current `execution_id`, generated `workflow_path`, `bundle_dir`, and
+goal control handles. Follow that run with `goal_status`, page `goal_events`,
+and stop with `goal_cancel`; do not relaunch the generated workflow. Use the
+current `execution_id` only for workflow drill-down.
 
-When native workflow MCP tools are available, start `.apxmw` work through `apxm_workflow_start`, poll `apxm_workflow_status`, page `apxm_workflow_events`, and stop with `apxm_workflow_cancel`. When an APXM server-managed `execution_id` is available through any route, prefer server control over local process management. Use run detail, event stream, and cancel endpoints through Dekk/watch or MCP wrappers. MCP-started workflow work should still produce session files; use `session_dir` for offline inspection and `execution_id` for live control.
+When native workflow MCP tools are available, start `.apxmw` work through `workflow_start`, poll `workflow_status`, page `workflow_events`, and stop with `workflow_cancel`. When an APXM server-managed `execution_id` is available through any route, prefer server control over local process management. Use run detail, event stream, and cancel endpoints through Dekk/watch or MCP wrappers. MCP-started workflow work should still produce session files; use `session_dir` for offline inspection and `execution_id` for live control.
 
 For orchestration runs, wake on `payload.kind = "orchestrator_wake"` or terminal
 `execute_complete`, `error`, or `turn_aborted` events. Treat `done: true` on an
@@ -53,7 +53,7 @@ index, `workflow_step_completed` carries step status, duration, and child
 
 ## Session Inspection
 
-`dekk apxm session list` and `dekk apxm session inspect <session-id-or-path>` read execution session output emitted by `apxm run`, `apxm execute`, and `apxm workflow run`. Workflow roots should be listed as first-class sessions with `manifest.json`, `live.json`, `trace.ndjson`, `results.json`, and `metrics.json`; child step sessions carry graph-level node traces and outputs. Use sessions when no rollout exists or when the user wants a local/offline handle.
+`dekk apxm session list` and `dekk apxm session inspect <session-id-or-path>` read execution session output emitted by `apxm run`, `apxm execute`, and `apxm workflow run`. Workflow roots should be listed as first-class sessions with `manifest.json`, `live.json`, `trace.ndjson`, `results.json`, and `metrics.json`; child step sessions carry workflow-step traces and outputs. Use sessions when no rollout exists or when the user wants a local/offline handle.
 
 ## Background Workflow
 

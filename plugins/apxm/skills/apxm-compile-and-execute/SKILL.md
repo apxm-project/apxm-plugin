@@ -1,6 +1,6 @@
 ---
 name: apxm-compile-and-execute
-description: Use when validating, compiling, executing, running, analyzing, or explaining APXM workflow artifacts such as canonical .air graphs, PlanGraph JSON proposals, Python frontend workflows, .apxmw workflow files, and compiled APXM objects.
+description: Use when validating, compiling, executing, running, analyzing, or explaining APXM workflow artifacts such as canonical .air workflows, Python frontend workflows, .apxmw workflow files, and compiled APXM objects.
 ---
 
 # APXM Compile And Execute
@@ -19,8 +19,7 @@ Use this skill as the direct APXM/Dekk execution path. It should be boring and t
 3. Identify the artifact type:
 
 - Canonical `.air`: validate, analyze, then execute or compile.
-- PlanGraph JSON: treat as a proposal and lower/compile to canonical `.air` before APXM validate/analyze/execute.
-- Python frontend workflow: compile to APXM graph first.
+- Python frontend workflow: emit AIR, then validate/analyze/execute.
 - `.apxmw`: use `dekk apxm workflow validate|analyze|execute` when available.
 - `.apxmobj`: run directly.
 
@@ -50,7 +49,7 @@ Store generated artifacts under `.apxm/` unless the user or repo has a clearer c
 ## Rules
 
 - Do not skip validation before execution.
-- Do not pass structured PlanGraph JSON examples directly to `dekk apxm validate`; JSON is reserved for structured data outputs unless a converter has lowered it.
+- Do not pass structured data examples directly to `dekk apxm validate`; executable workflows should be canonical AIR or Python source that emits AIR.
 - If validation fails, report the exact schema or policy gap and stop.
 - If compile succeeds but execution fails, preserve both compile artifact and runtime error.
 - Surface trace IDs, worker IDs, budgets, warnings, and generated files.

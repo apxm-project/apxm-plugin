@@ -62,7 +62,7 @@ dekk apxm explain crates/tools/apxm-server/skills/apxm-os-discord-curate/skills/
 dekk apxm compile crates/tools/apxm-server/skills/apxm-os-discord-curate/skills/discord-project-answer/skill.air -o /tmp/apxm-discord-project-answer.apxmobj
 ```
 
-Expected: canonical `.air` validates, analyzes, explains, and compiles. PlanGraph JSON examples are proposals and should not be passed directly to `dekk apxm validate`.
+Expected: canonical `.air` validates, analyzes, explains, and compiles.
 
 ## Workflow Following
 
@@ -102,31 +102,31 @@ Native goal CLI smoke:
 ```bash
 dekk apxm goal "bounded orchestration smoke" --dry-run --json
 dekk apxm goal "bounded orchestration smoke" --no-follow --json
-dekk apxm goal --status <execution_id> --json
-dekk apxm goal --events <execution_id> --json
-dekk apxm goal --cancel <execution_id> --json
+dekk apxm goal --status <goal_id> --json
+dekk apxm goal --events <goal_id> --json
+dekk apxm goal --cancel <goal_id> --json
 ```
 
-Expected: `goal` returns an `execution_id`, artifact paths, control handles,
-worker plan, and workflow/session handles. `--dry-run` must validate and
+Expected: `goal` returns a `goal_id`, current `execution_id`, artifact paths,
+control handles, worker plan, and workflow/session handles. `--dry-run` must validate and
 materialize the bundle without starting workers.
 
 Native MCP orchestration smoke:
 
 ```text
-tools/list includes apxm_orchestrate_start
-tools/list includes apxm_workflow_status, apxm_workflow_events, and apxm_workflow_cancel
-apxm_orchestrate_start explicit bounded workers -> execution_id
-apxm_workflow_events({execution_id, since: 0}) -> orchestrator_sleep
+tools/list includes goal_start
+tools/list includes goal_status, goal_events, and goal_cancel
+goal_start explicit bounded workers -> goal_id + execution_id
+goal_events({goal_id, since: 0}) -> orchestrator_sleep
 page events with since = next_seq
-apxm_workflow_events -> orchestrator_wake or terminal event
-apxm_workflow_status -> succeeded or failed
+goal_events -> orchestrator_wake or terminal event
+goal_status -> succeeded or failed
 ```
 
 Expected: the orchestrator does not manually prompt workers after start. A
 parked or long-running orchestration can be interrupted with
-`apxm_workflow_cancel`, and the final status reports failure with the
-`apxm_workflow_cancel` reason.
+`goal_cancel`, and the final status reports failure with the
+`goal_cancel` reason.
 
 Design-only checks must not spawn-test every candidate worker. Use explicit spawn verification only when execution policy must bind workers:
 
@@ -151,7 +151,7 @@ Plan-splitting coverage:
 [objective/event] -> [roles] -> [verified worker routes] -> [compact briefs] -> [fan-in eval]
 ```
 
-Expected: every worker brief includes objective, input refs, constraints, expected artifact, evidence/check command, budget, timeout, and stop conditions. Worker-authored graphs remain proposals until APXM validates and admits them.
+Expected: every worker brief includes objective, input refs, constraints, expected artifact, evidence/check command, budget, timeout, and stop conditions. Worker-authored workflows remain proposals until APXM validates and admits them.
 
 Interruption coverage:
 

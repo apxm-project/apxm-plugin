@@ -26,8 +26,8 @@ ALL_CANDIDATES = "all-candidates"
 ALL_RESOLVABLE = "all-resolvable"
 
 DEFAULT_ROLE_CAPABILITIES: dict[str, list[str]] = {
-    "planner": ["read", "graph_author"],
-    "graph_author": ["read", "graph_author"],
+    "planner": ["read", "workflow_author"],
+    "workflow_author": ["read", "workflow_author"],
     "executor": ["execute"],
     "reviewer": ["read"],
     "critic": ["read", "critique"],
@@ -197,14 +197,13 @@ def is_verified(item: dict[str, Any]) -> bool:
     return status in {"available", "ready", "verified", "spawn_ready"}
 
 
-def capabilities_for(item: dict[str, Any], executable_present: bool, verified: bool) -> list[str]:
-    capabilities = ["read", "graph_author"] if executable_present else []
-    for key in ("worker_capabilities", "capabilities", "roles"):
-        raw = item.get(key)
-        if isinstance(raw, list) and all(isinstance(value, str) for value in raw):
-            capabilities.extend(value.strip() for value in raw if value.strip())
+def route_capabilities_for(item: dict[str, Any], executable_present: bool, verified: bool) -> list[str]:
+    capabilities = ["read", "workflow_author"] if executable_present else []
+    raw = item.get("route_capabilities")
+    if isinstance(raw, list) and all(isinstance(value, str) for value in raw):
+        capabilities.extend(value.strip() for value in raw if value.strip())
     if verified:
-        capabilities.extend(["read", "graph_author", "execute"])
+        capabilities.extend(["read", "workflow_author", "execute"])
     deduped: list[str] = []
     for capability in capabilities:
         if capability not in deduped:
@@ -253,7 +252,7 @@ def build_worker_descriptor(item: dict[str, Any], default_source: str) -> dict[s
         "executable": executable,
         "executable_present": executable_present,
         "verified": verified,
-        "capabilities": capabilities_for(item, executable_present, verified),
+        "route_capabilities": route_capabilities_for(item, executable_present, verified),
         "capability_servers": capability_servers_for(item),
         "warnings": warnings,
     }
@@ -277,7 +276,7 @@ def collect_workers(agents: list[dict[str, Any]], templates: list[dict[str, Any]
     return reachable_workers
 
 
-def index_workers_by_capability(
+def index_workers_by_route_capability(
     workers: list[dict[str, Any]],
     *,
     verified_only: bool = False,
@@ -289,7 +288,7 @@ def index_workers_by_capability(
         worker_id = str(worker.get("worker_id", "")).strip()
         if not worker_id:
             continue
-        for capability in normalize_string_list(worker.get("capabilities")):
+        for capability in normalize_string_list(worker.get("route_capabilities")):
             index[capability].append(worker_id)
     return {key: sorted(values) for key, values in sorted(index.items())}
 
@@ -445,7 +444,7 @@ def resolve_role_routes(
         def matches(worker: dict[str, Any], *, require_verified: bool) -> bool:
             if require_verified and not worker.get("verified"):
                 return False
-            capabilities = set(normalize_string_list(worker.get("capabilities")))
+            capabilities = set(normalize_string_list(worker.get("route_capabilities")))
             return set(required).issubset(capabilities)
 
         verified_matches = [
@@ -589,7 +588,7 @@ def main() -> int:
                     "executable": "",
                     "executable_present": False,
                     "verified": False,
-                    "capabilities": [],
+                    "route_capabilities": [],
                     "capability_servers": [],
                     "warnings": ["worker was not present in APXM registry snapshot"],
                 }
@@ -598,7 +597,7 @@ def main() -> int:
             if result.ok:
                 worker["verified"] = True
                 worker["verification"] = "spawn_test"
-                worker["capabilities"] = capabilities_for(worker, bool(worker["executable_present"]), True)
+                worker["route_capabilities"] = route_capabilities_for(worker, bool(worker["executable_present"]), True)
             else:
                 worker.setdefault("warnings", []).append("APXM spawn test failed")
                 worker["verification"] = "failed"
@@ -624,8 +623,11 @@ def main() -> int:
         "registered_agent_profiles": agents,
         "agent_templates": templates,
         "workers": reachable_workers,
-        "workers_by_capability": index_workers_by_capability(reachable_workers),
-        "verified_workers_by_capability": index_workers_by_capability(reachable_workers, verified_only=True),
+        "workers_by_route_capability": index_workers_by_route_capability(reachable_workers),
+        "verified_workers_by_route_capability": index_workers_by_route_capability(
+            reachable_workers,
+            verified_only=True,
+        ),
         "role_routes": role_routes,
         "policy_loaded": policy is not None,
         "candidate_worker_count": sum(1 for worker in reachable_workers if worker["executable_present"]),
