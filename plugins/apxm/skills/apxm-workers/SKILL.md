@@ -72,6 +72,22 @@ Use compact briefs:
 
 Do not send broad repository dumps or hidden reasoning.
 
+## Host Readiness Checks
+
+Do not equate an installed CLI with a verified APXM worker. A host is ready when:
+
+- Executable is on `PATH`.
+- The profile is APXM-resolvable from `dekk apxm agent list --json`.
+- Authentication is configured outside the prompt.
+- Noninteractive or ACP mode is supported.
+- APXM can spawn the process, send a prompt, and receive a bounded response.
+- APXM can capture stdout, stderr, exit status, and trace metadata.
+- APXM can enforce timeout, cancellation, and budget stop.
+- The route has a clear write policy for repository changes.
+
+Headless cost envelopes must be live and verified before expensive
+orchestration — static plan estimates are not enough for a Tier 4 host.
+
 ## When To Load References
 
 Load `references/worker-contract.md` when building a worker roster, route-capability matrix, or workflow-authoring request.
