@@ -20,7 +20,9 @@
     "autonomous",
     "events",
     "triggers",
-    "follow-workflow"
+    "follow-workflow",
+    "mcp",
+    "headless"
   ],
   "skills": "./skills/",
   "interface": {
