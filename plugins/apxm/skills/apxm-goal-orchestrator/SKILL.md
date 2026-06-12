@@ -87,6 +87,9 @@ dekk apxm execute <workflow.air>
 - Require a budget policy before expensive or headless fan-out.
 - Prefer fan-out for independent subtasks and fan-in for synthesis, critique, merge, or verification.
 - Persist trace IDs and artifact paths in the final answer.
+- Plugin/MCP boundary: do not add `mcpServers` to `plugin.json` unless a real
+  `.mcp.json` points at an APXM server or stdio MCP binary present in the target
+  environment. The plugin distributes skills; APXM server/Dekk owns execution.
 
 ## When To Load References
 

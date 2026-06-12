@@ -21,7 +21,6 @@ LOOP_CONTRACT = (
 )
 AUTO_DOC = ROOT / "docs" / "APXM-AUTONOMOUS-LOOP.md"
 TEST_MATRIX = ROOT / "docs" / "TEST-MATRIX.md"
-MCP_SKILL = PLUGIN_ROOT / "skills" / "apxm-mcp" / "SKILL.md"
 ORCH_SKILL = PLUGIN_ROOT / "skills" / "apxm-goal-orchestrator" / "SKILL.md"
 ORCH_CONTRACT = (
     PLUGIN_ROOT / "skills" / "apxm-goal-orchestrator" / "references" / "workflow-contract.md"
@@ -61,12 +60,6 @@ class AutonomousContractTests(unittest.TestCase):
         self.assertNotIn("dekk apxm orchestrate", combined)
         self.assertNotIn(".apxm/requests", combined)
 
-    def test_mcp_skill_lists_only_real_workflow_control_tools(self) -> None:
-        skill = read(MCP_SKILL)
-        self.assertIn("workflow_start", skill)
-        self.assertIn("dekk apxm agent list --json", skill)
-        self.assertNotIn("`apxm_workers`", skill)
-        self.assertNotIn("`apxm_doctor`", skill)
 
     def test_skill_uses_os_to_server_path_not_server_trigger_registry(self) -> None:
         skill = read(AUTO_SKILL)
@@ -109,7 +102,6 @@ class AutonomousContractTests(unittest.TestCase):
                 read(LOOP_CONTRACT),
                 read(AUTO_DOC),
                 read(TEST_MATRIX),
-                read(MCP_SKILL),
             ]
         )
         forbidden = [

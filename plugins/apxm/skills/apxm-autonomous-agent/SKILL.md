@@ -106,7 +106,7 @@ Confirm these with `apxm_doctor.py`, APXM capability inventory, or the target se
 
 ## When To Load References
 
-Load `references/loop-contract.md` before writing a loop spec, trigger schema, workflow-pack contract, role-splitting plan, worker handoff contract, or interruption policy. For MCP/server implementation work, use `apxm-mcp` or APXM core docs instead.
+Load `references/loop-contract.md` before writing a loop spec, trigger schema, workflow-pack contract, role-splitting plan, worker handoff contract, or interruption policy.
 
 ## Result Shape
 
