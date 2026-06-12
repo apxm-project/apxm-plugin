@@ -56,10 +56,10 @@ Expected: each route either becomes verified by APXM or reports a concrete spawn
 ## Canonical AIR
 
 ```bash
-dekk apxm validate crates/tools/apxm-server/skills/apxm-os-discord-curate/skills/discord-project-answer/skill.air
-dekk apxm analyze crates/tools/apxm-server/skills/apxm-os-discord-curate/skills/discord-project-answer/skill.air
-dekk apxm explain crates/tools/apxm-server/skills/apxm-os-discord-curate/skills/discord-project-answer/skill.air
-dekk apxm compile crates/tools/apxm-server/skills/apxm-os-discord-curate/skills/discord-project-answer/skill.air -o /tmp/apxm-discord-project-answer.apxmobj
+dekk apxm validate crates/tools/apxm-server/skills/prompt-as-workflow/examples/refactor.air
+dekk apxm analyze crates/tools/apxm-server/skills/prompt-as-workflow/examples/refactor.air
+dekk apxm explain crates/tools/apxm-server/skills/prompt-as-workflow/examples/refactor.air
+dekk apxm compile crates/tools/apxm-server/skills/prompt-as-workflow/examples/refactor.air -o /tmp/apxm-refactor.apxmobj
 ```
 
 Expected: canonical `.air` validates, analyzes, explains, and compiles.
