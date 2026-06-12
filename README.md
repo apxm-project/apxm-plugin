@@ -33,6 +33,14 @@ not requirements.
 
 See `docs/APXM-PLUGIN-FLOW.md` for the plain-text plugin flowchart and boundary model. See `docs/APXM-AUTONOMOUS-LOOP.md` for the autonomous event loop architecture.
 
+### Relationship to apxm core
+
+This is a **downstream, hand-authored marketplace distribution**, not generated
+from the apxm core `.agents/` source. Its skills are a curated consumer subset;
+where a skill overlaps a core skill (e.g. `apxm-compile-and-execute`,
+`apxm-goal-orchestrator`) it must stay consistent with the core definition —
+same `dekk apxm` command vocabulary, no contradictory guidance.
+
 ## Local Check
 
 ```bash
