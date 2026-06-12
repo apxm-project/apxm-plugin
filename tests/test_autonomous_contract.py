@@ -22,9 +22,9 @@ LOOP_CONTRACT = (
 AUTO_DOC = ROOT / "docs" / "APXM-AUTONOMOUS-LOOP.md"
 TEST_MATRIX = ROOT / "docs" / "TEST-MATRIX.md"
 MCP_SKILL = PLUGIN_ROOT / "skills" / "apxm-mcp" / "SKILL.md"
-ORCH_SKILL = PLUGIN_ROOT / "skills" / "apxm-orchestrate" / "SKILL.md"
+ORCH_SKILL = PLUGIN_ROOT / "skills" / "apxm-goal-orchestrator" / "SKILL.md"
 ORCH_CONTRACT = (
-    PLUGIN_ROOT / "skills" / "apxm-orchestrate" / "references" / "workflow-contract.md"
+    PLUGIN_ROOT / "skills" / "apxm-goal-orchestrator" / "references" / "workflow-contract.md"
 )
 PLUGIN_FLOW = ROOT / "docs" / "APXM-PLUGIN-FLOW.md"
 PLUGIN_JSON = PLUGIN_ROOT / ".codex-plugin" / "plugin.json"

@@ -1,6 +1,6 @@
 interface:
   display_name: "APXM Orchestrate"
   short_description: "Create, run, and follow bounded APXM orchestration"
-  default_prompt: "Use $apxm-orchestrate to create a bounded worker workflow, execute it through APXM, and wait for workflow events."
+  default_prompt: "Use $apxm-goal-orchestrator to create a bounded worker workflow, execute it through APXM, and wait for workflow events."
 policy:
   allow_implicit_invocation: true

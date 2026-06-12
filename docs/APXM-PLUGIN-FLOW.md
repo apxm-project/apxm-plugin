@@ -221,7 +221,7 @@ through APXM policy, not hide a prompt loop outside APXM.
 [Any agent receives complex goal]
           |
           v
-[Use apxm-orchestrate]
+[Use apxm-goal-orchestrator]
           |
           v
 [Discover APXM + verified workers]
@@ -245,7 +245,7 @@ through APXM policy, not hide a prompt loop outside APXM.
 [Gate/eval result + optional next bounded pass]
 ```
 
-The workflow creation skill is `apxm-orchestrate` for a new goal/pass and
+The workflow creation skill is `apxm-goal-orchestrator` for a new goal/pass and
 `apxm-skill-to-workflow` for converting an existing skill into reusable APXM
 workflow artifacts. Do not add another hidden natural-language planner tool in
 the server unless it reuses these explicit APXM control surfaces.

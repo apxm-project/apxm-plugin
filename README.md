@@ -10,7 +10,7 @@ This repository is a Codex marketplace root. The installable plugin lives at
 ## What It Provides
 
 - `apxm-council`: run a traceable multi-perspective council.
-- `apxm-orchestrate`: create a bounded worker workflow, execute it through APXM,
+- `apxm-goal-orchestrator`: create a bounded worker workflow, execute it through APXM,
   and wait on workflow events/status.
 - `apxm-autonomous-agent`: design APXM-owned event-triggered loop specs and identify missing control-plane capabilities.
 - `apxm-workers`: select verified APXM workers and request worker-authored workflows.

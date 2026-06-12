@@ -1,5 +1,5 @@
 ---
-name: apxm-orchestrate
+name: apxm-goal-orchestrator
 description: Use when a task should become a bounded APXM worker workflow, execute through APXM, and be followed through goal events/status. Use for large code, research, analysis, or implementation workflows where APXM/Dekk should remain the execution authority.
 ---
 
